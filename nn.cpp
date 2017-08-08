@@ -7,7 +7,6 @@
 void natural_neighbor(std::vector<double>& known_points);
 
 typedef boost::geometry::model::point <double, 3, boost::geometry::cs::cartesian> Point;
-
 using namespace spatial_index;
 std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
                                       std::vector<double>& known_values,
@@ -15,7 +14,7 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
                                       int coord_max) {
 
     printf("Building KD-Tree\n");
-    // Build KD-Tree from known points
+
     kdtree<double> *tree = new kdtree<double>();
     for (int i = 0; i < known_coordinates.size(); i ++) {
         tree->add(&known_coordinates[i], &known_values[i]);
@@ -31,7 +30,6 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
     }
 
     printf("Calculating scattered contributions\n");
-
     int xscale = coord_max*coord_max;
     int yscale = coord_max;
 
@@ -46,6 +44,10 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
         int px = interpolation_points[i].get<0>();
         int py = interpolation_points[i].get<1>();
         int pz = interpolation_points[i].get<2>();
+        // Search neighboring interpolation points within a bounding box
+        // of r indices. From this subset of points, calculate their distance
+        // and tally the ones that fall within the sphere of radius r surrounding
+        // interpolation_points[i].
         for (int x = px - r; x < px + r; x++) {
             if (x < 0) { continue; }
             for (int y = py - r; y < py + r; y++) {
@@ -82,11 +84,10 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
 
 typedef boost::geometry::model::point <double, 3, boost::geometry::cs::cartesian> point;
 
-#define RAND_MAX 100
+#define RAND_MAX 300
 
 int main(int argc, char** argv) {
-    printf("%d\n", RAND_MAX);
-    int coord_max = 100;
+    int coord_max = RAND_MAX;
     int num_known_points = 5000;
     std::vector<Point> known_points(num_known_points);
     std::vector<double> known_values(num_known_points);
