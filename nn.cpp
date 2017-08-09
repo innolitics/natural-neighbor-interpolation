@@ -46,6 +46,7 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
         // of r indices. From this subset of points, calculate their distance
         // and tally the ones that fall within the sphere of radius r surrounding
         // interpolation_points[i].
+        // TODO: Bounds check above as well
         for (int x = px - r; x < px + r; x++) {
             if (x < 0) { continue; }
             for (int y = py - r; y < py + r; y++) {
