@@ -1,5 +1,5 @@
-#include <python/Python.h>
-#include <numpy/arrayobject.h>
+#include "Python.h"
+#include "numpy/arrayobject.h"
 #include <boost/geometry.hpp>
 #include <vector>
 #include "nn.h"
@@ -15,11 +15,22 @@ static PyMethodDef module_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC init_naturalneighbor(void) {
-    PyObject *m = Py_InitModule3("_naturalneighbor", module_methods, module_docstring);
-    if (m == NULL) { return; }
+static struct PyModuleDef module = {
+   PyModuleDef_HEAD_INIT,
+   "naturalneighbor",   /* name of module */
+   module_docstring, /* module documentation, may be NULL */
+   -1,       /* size of per-interpreter state of the module,
+                or -1 if the module keeps state in global variables. */
+  module_methods
+};
+
+PyMODINIT_FUNC PyInit_naturalneighbor(void) {
+    /* PyObject *m = Py_InitModule3("naturalneighbor", module_methods, module_docstring); */
+    PyObject *m = PyModule_Create(&module);
+    if (m == NULL) { return NULL; }
 
     import_array(); // Enable numpy functionality
+    return m;
 }
 
 typedef boost::geometry::model::point <double, 3, boost::geometry::cs::cartesian> Point;
@@ -55,18 +66,18 @@ static PyObject *naturalneighbor_natural_neighbor(PyObject *self, PyObject *args
     std::vector<Point> known_coords(num_known_points);
     std::vector<double> known_vals(num_known_points);
     for (int i = 0; i < num_known_points; i++) {
-        known_coords.push_back(Point(PyArray_GETPTR2(known_coord_numpy_arr, i, 0),
-                                     PyArray_GETPTR2(known_coord_numpy_arr, i, 1),
-                                     PyArray_GETPTR2(known_coord_numpy_arr, i, 2)));
+        known_coords.push_back(Point(*(double*)PyArray_GETPTR2(known_coord_numpy_arr, i, 0),
+                                     *(double*)PyArray_GETPTR2(known_coord_numpy_arr, i, 1),
+                                     *(double*)PyArray_GETPTR2(known_coord_numpy_arr, i, 2)));
         known_vals.push_back(known_values[i]);
     }
 
     int num_interpolation_points = interpolation_points_dims[0];
     std::vector<Point> interp_points(num_interpolation_points);
     for (int i = 0; i < num_interpolation_points; i++) {
-        interp_points.push_back(Point(PyArray_GETPTR2(interpolation_points_numpy_arr, i, 0),
-                                      PyArray_GETPTR2(interpolation_points_numpy_arr, i, 1),
-                                      PyArray_GETPTR2(interpolation_points_numpy_arr, i, 2)));
+        interp_points.push_back(Point(*(double*)PyArray_GETPTR2(interpolation_points_numpy_arr, i, 0),
+                                      *(double*)PyArray_GETPTR2(interpolation_points_numpy_arr, i, 1),
+                                      *(double*)PyArray_GETPTR2(interpolation_points_numpy_arr, i, 2)));
     }
 
 
@@ -79,7 +90,13 @@ static PyObject *naturalneighbor_natural_neighbor(PyObject *self, PyObject *args
     Py_DECREF(known_values_numpy_arr);
     Py_DECREF(interpolation_points_numpy_arr);
 
+    npy_intp dims[] = {num_interpolation_points};
+    PyObject* result = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+    for (int i = 0; i < num_interpolation_points; i++) {
+        double interp_value = (*interpolation_values)[i];
+        ((double*) PyArray_DATA(result))[i] = interp_value;
+    }
+
     //TODO: Convert function result into numpy array
-    PyObject *ret = Py_BuildValue("O", interpolation_values);
-    return ret;
+    return result;
 }

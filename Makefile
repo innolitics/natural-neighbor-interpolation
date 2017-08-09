@@ -10,3 +10,4 @@ module:
 
 clean:
 	rm -f nn
+	rm -rf build/*
