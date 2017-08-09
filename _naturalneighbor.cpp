@@ -25,7 +25,6 @@ static struct PyModuleDef module = {
 };
 
 PyMODINIT_FUNC PyInit_naturalneighbor(void) {
-    /* PyObject *m = Py_InitModule3("naturalneighbor", module_methods, module_docstring); */
     PyObject *m = PyModule_Create(&module);
     if (m == NULL) { return NULL; }
 
@@ -42,8 +41,6 @@ static PyObject *naturalneighbor_natural_neighbor(PyObject *self, PyObject *args
                           &known_values_obj, &interpolation_points_obj, &coord_max)) {
         return NULL;
     }
-    //TODO: NPY_IN_ARRAY or NPY_ARRAY_IN_ARRAY?
-    //https://docs.scipy.org/doc/numpy/user/c-info.how-to-extend.html#PyArray_FROM_OTF
     PyObject *known_coord_numpy_arr = PyArray_FROM_OTF(known_coord_obj, NPY_DOUBLE, NPY_IN_ARRAY);
     PyObject *known_values_numpy_arr = PyArray_FROM_OTF(known_values_obj, NPY_DOUBLE, NPY_IN_ARRAY);
     PyObject *interpolation_points_numpy_arr = PyArray_FROM_OTF(interpolation_points_obj, NPY_DOUBLE, NPY_IN_ARRAY);
@@ -55,48 +52,45 @@ static PyObject *naturalneighbor_natural_neighbor(PyObject *self, PyObject *args
         return NULL;
     }
 
-    double *known_coordinates = (double*)PyArray_DATA(known_coord_numpy_arr);
-    int *known_coordinates_dims = (int*)PyArray_DIMS(known_coord_numpy_arr);
-    double *known_values = (double*)PyArray_DATA(known_coord_numpy_arr);
-    double *interpolation_points = (double*)PyArray_DATA(interpolation_points_numpy_arr);
-    int *interpolation_points_dims = (int*)PyArray_DIMS(interpolation_points_numpy_arr);
+    npy_intp *known_coordinates_dims = PyArray_DIMS(known_coord_numpy_arr);
+    double *known_values = (double*)PyArray_GETPTR1(known_values_numpy_arr, 0);
+    npy_intp *interpolation_points_dims = PyArray_DIMS(interpolation_points_numpy_arr);
 
     //TODO: Add in bounds checking if user passes invalid shape
     int num_known_points = known_coordinates_dims[0];
     std::vector<Point> known_coords(num_known_points);
     std::vector<double> known_vals(num_known_points);
-    for (int i = 0; i < num_known_points; i++) {
-        known_coords.push_back(Point(*(double*)PyArray_GETPTR2(known_coord_numpy_arr, i, 0),
-                                     *(double*)PyArray_GETPTR2(known_coord_numpy_arr, i, 1),
-                                     *(double*)PyArray_GETPTR2(known_coord_numpy_arr, i, 2)));
-        known_vals.push_back(known_values[i]);
+    for (npy_intp i = 0; i < num_known_points; i++) {
+        known_coords[i] = (Point(*(double*)PyArray_GETPTR2(known_coord_numpy_arr, i, 0),
+                                 *(double*)PyArray_GETPTR2(known_coord_numpy_arr, i, 1),
+                                 *(double*)PyArray_GETPTR2(known_coord_numpy_arr, i, 2)));
+        known_vals[i] = *((double*)PyArray_GETPTR1(known_values_numpy_arr, i));
     }
 
-    int num_interpolation_points = interpolation_points_dims[0];
+    int num_interpolation_points = interpolation_points_dims[1];
     std::vector<Point> interp_points(num_interpolation_points);
-    for (int i = 0; i < num_interpolation_points; i++) {
-        interp_points.push_back(Point(*(double*)PyArray_GETPTR2(interpolation_points_numpy_arr, i, 0),
-                                      *(double*)PyArray_GETPTR2(interpolation_points_numpy_arr, i, 1),
-                                      *(double*)PyArray_GETPTR2(interpolation_points_numpy_arr, i, 2)));
+    for (npy_intp i = 0; i < num_interpolation_points; i++) {
+        interp_points[i] = (Point(*(double*)PyArray_GETPTR2(interpolation_points_numpy_arr, 0, i),
+                                  *(double*)PyArray_GETPTR2(interpolation_points_numpy_arr, 1, i),
+                                  *(double*)PyArray_GETPTR2(interpolation_points_numpy_arr, 2, i)));
     }
-
 
     std::vector<double> *interpolation_values = natural_neighbor(known_coords,
                                                                  known_vals,
                                                                  interp_points,
                                                                  coord_max);
+    npy_intp dims[] = {num_interpolation_points};
+    PyObject* result = PyArray_ZEROS(1, dims, NPY_DOUBLE, 0);
+    for (int i = 0; i < num_interpolation_points; i++) {
+        *((double*)PyArray_GETPTR1(result, i)) = (*interpolation_values)[i];
+    }
 
+    printf("Calculation completed.\n");
     Py_DECREF(known_coord_numpy_arr);
     Py_DECREF(known_values_numpy_arr);
     Py_DECREF(interpolation_points_numpy_arr);
 
-    npy_intp dims[] = {num_interpolation_points};
-    PyObject* result = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
-    for (int i = 0; i < num_interpolation_points; i++) {
-        double interp_value = (*interpolation_values)[i];
-        ((double*) PyArray_DATA(result))[i] = interp_value;
-    }
+    delete interpolation_values;
 
-    //TODO: Convert function result into numpy array
     return result;
 }
