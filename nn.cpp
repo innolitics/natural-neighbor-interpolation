@@ -1,13 +1,11 @@
 #include <vector>
 #include <boost/geometry.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
 
 #include "kdtree.h"
 
-void natural_neighbor(std::vector<double>& known_points);
+using namespace spatial_index;
 
 typedef boost::geometry::model::point <double, 3, boost::geometry::cs::cartesian> Point;
-using namespace spatial_index;
 std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
                                       std::vector<double>& known_values,
                                       std::vector<Point>& interpolation_points,
