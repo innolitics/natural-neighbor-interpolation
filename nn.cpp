@@ -25,11 +25,11 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
     }
     tree->build();
 
-    std::vector<double> accumulator(interpolation_points.size());
+    std::vector<double> *interpolation_values = new std::vector<double>(interpolation_points.size());
     std::vector<double> contribution_counter(interpolation_points.size());
 
     for (int i = 0; i < interpolation_points.size(); i++) {
-        accumulator[i] = 0;
+        (*interpolation_values)[i] = 0;
         contribution_counter[i] = 0;
     }
 
@@ -68,17 +68,16 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
                             + distance_z*distance_z > comparison_distance){
                         continue;
                     }
-                    accumulator[idx] += q->value;
+                    (*interpolation_values)[idx] += q->value;
                     contribution_counter[idx] += 1;
                 }
             }
         }
     }
 
-    std::vector<double> *interpolation_values = new std::vector<double>(interpolation_points.size());
     for (int i = 0; i < interpolation_values->size(); i++) {
         if (contribution_counter[i] != 0) {
-            (*interpolation_values)[i] = accumulator[i] / contribution_counter[i];
+            (*interpolation_values)[i] /= contribution_counter[i];
         } else {
             (*interpolation_values)[i] = 0; //TODO: this is just 0, better way to mark NAN?
         }
