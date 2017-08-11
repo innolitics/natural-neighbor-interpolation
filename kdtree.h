@@ -67,20 +67,6 @@ public:
         nearest(query, m_root, best);
         return best.node->data;
     }
-    void knearest(const Point &query, size_t k, std::vector<const Data*> &result) const {
-        if (!m_root || k < 1) {
-            return;
-        }
-        MaxPriorityQueue tmp;
-        knearest(query, m_root, k, tmp);
-        size_t size = tmp.size();
-        result.resize(size);
-        for (size_t i = 0; i < size; i++) {
-            // Reverse order
-            result[size - i - 1] = tmp.top().second->data;
-            tmp.pop();
-        }
-    }
     const QueryResult *nearest_iterative(const Point &query) const {
         if (!m_root) {
             return NULL;
@@ -190,27 +176,6 @@ private:
             return;
         }
         nearest(query, far, best);
-    }
-    template <typename PriorityQueue>
-    static void knearest(const Point &query, const node_ptr &currentNode, size_t k, PriorityQueue &result) {
-        if (!currentNode) {
-            return;
-        }
-        double d = boost::geometry::comparable_distance(query, *currentNode->split); // no sqrt
-        double dx = util::subtract(query, *currentNode->split, currentNode->axis);
-        if (result.size() < k or d <= result.top().first) {
-            result.push(DistanceTuple(d, currentNode));
-            if (result.size() > k) {
-                result.pop();
-            }
-        }
-        node_ptr near = dx <= 0 ? currentNode->left : currentNode->right;
-        node_ptr far = dx <= 0 ? currentNode->right : currentNode->left;
-        knearest(query, near, k, result);
-        if ((dx * dx)  >= result.top().first) {
-            return;
-        }
-        knearest(query, far, k, result);
     }
 };
 
