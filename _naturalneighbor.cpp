@@ -17,11 +17,10 @@ static PyMethodDef module_methods[] = {
 
 static struct PyModuleDef module = {
    PyModuleDef_HEAD_INIT,
-   "naturalneighbor",   /* name of module */
-   module_docstring, /* module documentation, may be NULL */
-   -1,       /* size of per-interpreter state of the module,
-                or -1 if the module keeps state in global variables. */
-  module_methods
+   "naturalneighbor",
+   module_docstring,
+   -1,
+   module_methods
 };
 
 PyMODINIT_FUNC PyInit_naturalneighbor(void) {
@@ -33,6 +32,7 @@ PyMODINIT_FUNC PyInit_naturalneighbor(void) {
 }
 
 typedef boost::geometry::model::point <double, 3, boost::geometry::cs::cartesian> Point;
+
 static PyObject *naturalneighbor_natural_neighbor(PyObject *self, PyObject *args) {
     int coord_max;
     PyObject *known_coord_obj, *known_values_obj, *interpolation_points_obj;
