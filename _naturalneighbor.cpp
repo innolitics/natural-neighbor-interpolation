@@ -1,6 +1,6 @@
 #include "Python.h"
 #include "numpy/arrayobject.h"
-#include <boost/geometry.hpp>
+#include "geometry.h"
 #include <vector>
 #include "nn.h"
 
@@ -31,7 +31,7 @@ PyMODINIT_FUNC PyInit_naturalneighbor(void) {
     return m;
 }
 
-typedef boost::geometry::model::point <double, 3, boost::geometry::cs::cartesian> Point;
+typedef geometry::Point<double, 3> Point;
 
 static PyObject *naturalneighbor_natural_neighbor(PyObject *self, PyObject *args) {
     int coord_max;

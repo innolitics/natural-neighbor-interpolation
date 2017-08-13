@@ -4,8 +4,8 @@
 #include <memory>
 #include <limits>
 #include <queue>
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
+
+#include "geometry.h"
 
 namespace spatial_index {
 
@@ -14,33 +14,8 @@ typedef struct {
     double distance;
 } QueryResult;
 
-namespace util {
 
-// Some compile time recursion in order to get a dimension dynamically
-template <typename Point, std::size_t Dimension, std::size_t Count>
-struct dimension_extractor {
-    static inline typename boost::geometry::default_distance_result<Point>::type subtract(const Point &p1, const Point &p2, std::size_t dim) {
-        if (Dimension == dim) {
-            return boost::geometry::get<Dimension>(p1) - boost::geometry::get<Dimension>(p2);
-        }
-        return dimension_extractor<Point, Dimension + 1, Count>::subtract(p1, p2, dim);
-    }
-};
-// end recursion
-template <typename Point, std::size_t Count>
-struct dimension_extractor<Point, Count, Count> {
-    static inline typename boost::geometry::default_distance_result<Point>::type subtract(const Point &p1, const Point &p2, std::size_t dim) {
-    }
-};
-
-template <typename Point>
-typename boost::geometry::default_distance_result<Point>::type subtract(const Point &p1, const Point &p2, std::size_t dim) {
-    return dimension_extractor<Point, 0, boost::geometry::dimension<Point>::type::value>::subtract(p1, p2, dim);
-}
-
-} // namespace util
-
-template <typename Data, typename Point = boost::geometry::model::point<double, 3, boost::geometry::cs::cartesian>>
+template <typename Data, typename Point = geometry::Point<double, 3>>
 class kdtree {
 public:
     kdtree() {}
@@ -84,8 +59,9 @@ public:
             }
             pq.pop();
             auto currentNode = current.second;
-            double d = boost::geometry::comparable_distance(query, *currentNode->split); // no sqrt
-            double dx = util::subtract(query, *currentNode->split, currentNode->axis);
+            auto splitPoint = *currentNode->split;
+            double d = query.comparable_distance(splitPoint); // no sqrt
+            double dx = query[currentNode->axis] - splitPoint[currentNode->axis];
             if (d < best.distance) {
                 best.node = currentNode;
                 best.distance = d;
@@ -127,6 +103,7 @@ private:
     typedef std::priority_queue<DistanceTuple, std::vector<DistanceTuple>, LargestOnTop> MaxPriorityQueue;
     Nodes m_nodes;
     node_ptr m_root;
+
     struct best_match {
         node_ptr node;
         double distance;
@@ -137,15 +114,19 @@ private:
     struct Sort : std::binary_function<NODE_TYPE, NODE_TYPE, bool> {
         Sort(std::size_t dim) : m_dimension(dim) {}
         bool operator()(const NODE_TYPE &lhs, const NODE_TYPE &rhs) const {
-            return util::subtract(*lhs->split, *rhs->split, m_dimension) < 0;
+            Point lhsPoint = *lhs->split;
+            Point rhsPoint = *rhs->split;
+            return lhsPoint[m_dimension] - rhsPoint[m_dimension] < 0;
         }
         std::size_t m_dimension;
     };
+
     node_ptr build(Nodes &nodes, int depth) {
         if (nodes.empty()) {
             return node_ptr();
         }
-        int axis = depth % boost::geometry::dimension<Point>();
+        //int axis = depth % geometry::dimension<Point>();
+        int axis = depth % 3;  // TODO: generalize over dimensions
         size_t median = nodes.size() / 2;
         std::nth_element(nodes.begin(), nodes.begin() + median, nodes.end(), Sort<node_ptr>(axis));
         node_ptr node = nodes.at(median);
@@ -163,8 +144,9 @@ private:
         if (!currentNode) {
             return;
         }
-        double d = boost::geometry::comparable_distance(query, *currentNode->split); // no sqrt
-        double dx = util::subtract(query, *currentNode->split, currentNode->axis);
+        const Point splitPoint = *currentNode->split;
+        double d = query.comparable_distance(splitPoint); // no sqrt
+        double dx = query[currentNode->axis] - splitPoint[currentNode->axis];
         if (d < best.distance) {
             best.node = currentNode;
             best.distance = d;
