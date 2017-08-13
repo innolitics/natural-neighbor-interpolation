@@ -31,14 +31,6 @@ def linear_barycentric_interpolation(data_coords, known_vals, grid, final_shape)
     gridded = griddata(data_coords, known_vals, grid, method='linear')
     return np.reshape(gridded, final_shape)
 
-def natural_neighbor_interpolation(data_coords, known_vals, grid, final_shape):
-    xmax, ymax, zmax = [dim-1 for dim in final_shape]
-    (accum, cnt, _, _) = nn3d(data_coords, known_vals,
-                        minima=np.array([0,0,0]),
-                        maxima=np.array([xmax+1,ymax+1,zmax+1]),
-                        res=np.array([xmax+1,ymax+1,zmax+1], dtype=np.int32))
-    return np.reshape((accum/cnt), final_shape)
-
 
 def display_method_error(method, interpolated_values, truth):
     error = (truth - interpolated_values)
@@ -56,12 +48,12 @@ def display_method_error(method, interpolated_values, truth):
     ''')
 
 if __name__ == '__main__':
-    coord_max = 60
+    coord_max = 30
     xmax = coord_max
     ymax = coord_max
     zmax = coord_max
     final_shape = (xmax, ymax, zmax)
-    num_known_points = 100
+    num_known_points = 50
     grid, known_points = generate_input_grid(final_shape, num_known_points)
 
     def f(x, y, z):
@@ -73,8 +65,10 @@ if __name__ == '__main__':
     print("Beginning Interpolation")
     nn_interp = natural_neighbor(known_points, known_vals, grid, coord_max)
     linear_interp = linear_barycentric_interpolation(known_points, known_vals, grid, final_shape)
-    linear_interp = np.reshape(linear_interp, final_shape)
     nn_interp = np.reshape(nn_interp, final_shape)
+    nn_interp[np.isnan(linear_interp)] = float('NaN')
+    true_vals[np.isnan(linear_interp)] = float('NaN')
+
     display_method_error('Linear Barycentric', linear_interp, true_vals)
     display_method_error('Natural Neighbor', nn_interp, true_vals)
 

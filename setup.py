@@ -8,16 +8,44 @@ module = Extension(
     include_dirs=numpy.distutils.misc_util.get_numpy_include_dirs(),
     library_dirs=['/usr/local/lib'],
     extra_compile_args=['--std=c++11'],
-    sources=['_naturalneighbor.cpp', 'nn.cpp']
+    sources=[
+        'naturalneighbor/_naturalneighbor.cpp',
+        'naturalneighbor/geometry.h',
+        'naturalneighbor/kdtree.h',
+        'naturalneighbor/nn.cpp',
+        'naturalneighbor/nn.h',
+    ],
 )
 
 setup(
-    name='NaturalNeighbor',
+    name='naturalneighbor',
     version='0.1',
-    description='Discrete natural neighbor interpolation in 3D.',
+    description='Fast, discrete natural neighbor interpolation in 3D.',
     author='Reece Stevens',
     author_email='rstevens@innolitics.com',
+    license='MIT',
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Topic :: Scientific/Engineering',
+        'Topic :: Software Development',
+    ],
+    keywords='interpolation scipy griddata numpy sibson',
+    install_requires=[
+        'numpy>=1.13',
+    ],
+    python_requires='>=2.7, >=3.4',
     url='https://github.com/innolitics/natural-neighbor-interpolation',
-    long_description='Discrete natural neighbor interpolation in 3D.',
-    ext_modules=[module]
+    long_description=open('README.rst', 'r').read(),
+    ext_modules=[module],
 )

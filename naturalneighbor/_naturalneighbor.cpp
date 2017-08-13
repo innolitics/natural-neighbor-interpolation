@@ -1,7 +1,9 @@
+#include <vector>
+
 #include "Python.h"
 #include "numpy/arrayobject.h"
+
 #include "geometry.h"
-#include <vector>
 #include "nn.h"
 
 static char module_docstring[] = "This module calculates natural neighbor interpolation for a given dataset in 3D.";
