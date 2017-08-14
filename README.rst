@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.org/innolitics/natural-neighbor-interpolation.svg?branch=master
+   :target: https://travis-ci.org/innolitics/natural-neighbor-interpolation
+
 Discrete Sibson (Natural Neighbor) Interpolation
 ================================================
 
