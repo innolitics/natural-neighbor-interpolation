@@ -8,7 +8,7 @@
 
 #include "geometry.h"
 
-namespace spatial_index {
+namespace kdtree {
 
 typedef struct {
     double value;
@@ -162,6 +162,6 @@ private:
     }
 };
 
-} // namespace spatial_index
+} // namespace kdtree
 
 #endif /* KDTREE_H_ */

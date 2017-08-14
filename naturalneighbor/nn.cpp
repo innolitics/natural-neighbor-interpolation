@@ -5,7 +5,6 @@
 #include "kdtree.h"
 #include "geometry.h"
 
-using namespace spatial_index;
 
 typedef geometry::Point <double, 3> Point;
 
@@ -22,7 +21,7 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
 
     printf("Building KD-Tree\n");
 
-    kdtree<double> *tree = new kdtree<double>();
+    kdtree::kdtree<double> *tree = new kdtree::kdtree<double>();
     for (std::size_t i = 0; i < known_coordinates.size(); i++) {
         tree->add(&known_coordinates[i], &known_values[i]);
     }
