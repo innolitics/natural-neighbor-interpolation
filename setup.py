@@ -19,7 +19,7 @@ module = Extension(
 
 setup(
     name='naturalneighbor',
-    version='0.1',
+    version='0.1.1',
     description='Fast, discrete natural neighbor interpolation in 3D.',
     author='Reece Stevens',
     author_email='rstevens@innolitics.com',
@@ -44,7 +44,7 @@ setup(
     install_requires=[
         'numpy>=1.13',
     ],
-    python_requires='>=2.7, >=3.4',
+    python_requires='~=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4',
     url='https://github.com/innolitics/natural-neighbor-interpolation',
     long_description=open('README.rst', 'r').read(),
     ext_modules=[module],
