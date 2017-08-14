@@ -6,7 +6,7 @@
 #include "geometry.h"
 #include "nn.h"
 
-static char module_docstring[] = "This module calculates natural neighbor interpolation for a given dataset in 3D.";
+static char module_docstring[] = "Discrete natural neighbor interpolation in 3D.";
 
 static char nn_docstring[] = "Calculate the natural neighbor interpolation of a dataset.";
 
