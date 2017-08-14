@@ -10,10 +10,7 @@ module = Extension(
     extra_compile_args=['--std=c++11'],
     sources=[
         'naturalneighbor/_naturalneighbor.cpp',
-        'naturalneighbor/geometry.h',
-        'naturalneighbor/kdtree.h',
         'naturalneighbor/nn.cpp',
-        'naturalneighbor/nn.h',
     ],
 )
 
@@ -44,7 +41,7 @@ setup(
     install_requires=[
         'numpy>=1.13',
     ],
-    python_requires='~=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4',
+    python_requires='>=2.7,>=3.4,<4',
     url='https://github.com/innolitics/natural-neighbor-interpolation',
     long_description=open('README.rst', 'r').read(),
     ext_modules=[module],
