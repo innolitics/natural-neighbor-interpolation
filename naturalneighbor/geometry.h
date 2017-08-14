@@ -45,4 +45,3 @@ private:
 } // namespace geometry
 
 #endif /* GEOMETRY_H_ */
-

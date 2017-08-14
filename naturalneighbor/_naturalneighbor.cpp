@@ -4,7 +4,7 @@
 #include "numpy/arrayobject.h"
 
 #include "geometry.h"
-#include "nn.h"
+#include "naturalneighbor.h"
 
 static char module_docstring[] = "Discrete natural neighbor interpolation in 3D.";
 
@@ -77,7 +77,7 @@ static PyObject *naturalneighbor_natural_neighbor(PyObject *self, PyObject *args
                                   *(double*)PyArray_GETPTR2(interpolation_points_numpy_arr, 2, i)));
     }
 
-    std::vector<double> *interpolation_values = natural_neighbor(known_coords,
+    std::vector<double> *interpolation_values = naturalneighbor::natural_neighbor(known_coords,
                                                                  known_vals,
                                                                  interp_points,
                                                                  coord_max);

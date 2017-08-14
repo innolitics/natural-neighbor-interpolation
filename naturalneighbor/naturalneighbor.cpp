@@ -4,7 +4,9 @@
 
 #include "kdtree.h"
 #include "geometry.h"
+#include "naturalneighbor.h"
 
+namespace naturalneighbor {
 
 typedef geometry::Point <double, 3> Point;
 
@@ -43,7 +45,7 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
     // For each interpolation point p, search neighboring interpolation points
     // within a sphere of radius r, where r = distance to nearest known point.
     for (std::size_t i = 0; i < interpolation_points.size(); i++) {
-        const QueryResult *q = tree->nearest_iterative(interpolation_points[i]);
+        const kdtree::QueryResult *q = tree->nearest_iterative(interpolation_points[i]);
         double comparison_distance = q->distance; // Actually distance squared
         int r = floor(sqrt(comparison_distance));
         int px = interpolation_points[i][0];
@@ -87,3 +89,5 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
     delete tree;
     return interpolation_values;
 }
+
+}  // namespace naturalneighbor
