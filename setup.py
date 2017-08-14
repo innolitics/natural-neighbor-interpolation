@@ -41,7 +41,7 @@ setup(
     install_requires=[
         'numpy>=1.13',
     ],
-    python_requires='>=2.7,>=3.4,<4',
+    python_requires='>2.6,>3.3,<4',
     url='https://github.com/innolitics/natural-neighbor-interpolation',
     long_description=open('README.rst', 'r').read(),
     ext_modules=[module],
