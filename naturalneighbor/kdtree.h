@@ -4,6 +4,7 @@
 #include <memory>
 #include <limits>
 #include <queue>
+#include <algorithm>
 
 #include "geometry.h"
 
