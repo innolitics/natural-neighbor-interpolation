@@ -25,3 +25,4 @@ Future Work
 - Support 2D
 - Support higher dimensions (?)
 - Add documentation with discussion on limitations of discrete sibson's method
+- Uncomment cpplint from tox.ini and cleanup C++ code
