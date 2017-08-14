@@ -6,3 +6,6 @@ __pycache__
 *.py[co]
 *.so
 MANIFEST
+*.egg-info
+.cache
+.python-version
