@@ -22,4 +22,3 @@ Future Work
 - Support 2D
 - Support higher dimensions (?)
 - Add documentation with discussion on limitations of discrete sibson's method
-- Make it pip installable
