@@ -1,6 +1,6 @@
 import numpy as np
 
-# from . import _naturalneighbor
+from . import _naturalneighbor
 
 def apply_affine(affine_matrix, A):
     mm, m = A.shape
@@ -35,17 +35,20 @@ def naturalneighbor(points_xyz, values, interpolated_coord_ranges):
         raise ValueError("Points must be a Nx3 dimensional array where N>0")
     if values.ndim != 1 or values.shape[0] != points_xyz.shape[0]:
         raise ValueError("Values must be a 1 dimensional and have same number of values as points.")
-    points_arr = np.ascontiguousarray(points, dtype=np.double)
     values_arr = np.ascontiguousarray(values, dtype=np.double)
     interpolated_coord_ranges_arr = np.ascontiguousarray(interpolated_coord_ranges, dtype=np.int)
     if interpolated_coord_ranges_arr.shape[0] == 3 and interpolated_coord_ranges_arr.shape[1] == 3:
         raise ValueError("Interpolated grid ranges must be an array like object of size 3x3 where the first dimension "
                          "is x,y,z and the second is (min value, max value, number of points).")
-
-    interpolated_values_shape = interpolated_coord_ranges_arr[2, :]
+    mins = interpolated_coord_ranges_arr[:, 0]
+    maxes = interpolated_coord_ranges_arr[:, 1]
+    steps = interpolated_coord_ranges_arr[:, 2]
+    interpolated_values_shape = np.floor((maxes - mins) / (steps))
     interpolated_values = np.zeros(interpolated_values_shape, dtype=np.double, order='C')
+    contribution_counter = np.zeros(interpolated_values_shape, dtype=np.double, order='C')
+    points_ijk = np.ascontiguousarray(convert_xyz_to_ijk(points_xyz, interpolated_coord_ranges))
 
     interpolated_values = _naturalneighbor.natural_neighbor(
-            points_arr, values_arr, interpolated_coord_ranges_arr, interpolated_values)
+            points_ijk, values_arr, interpolated_coord_ranges_arr, interpolated_values, contribution_counter)
 
     return interpolated_values
