@@ -13,8 +13,7 @@ static char nn_docstring[] = "Calculate the natural neighbor interpolation of a 
 static PyObject* naturalneighbor_natural_neighbor(PyObject* module, PyObject* args);
 
 static PyMethodDef module_methods[] = {
-    {"natural_neighbor", naturalneighbor_natural_neighbor, METH_VARARGS, nn_docstring},
-    {NULL, NULL, 0, NULL}
+    {"natural_neighbor", naturalneighbor_natural_neighbor, METH_VARARGS, nn_docstring}
 };
 
 static struct PyModuleDef module = {
