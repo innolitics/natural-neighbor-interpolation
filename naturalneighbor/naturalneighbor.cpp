@@ -26,8 +26,8 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
     }
     tree->build();
 
-    auto interpolation_values = new std::vector<double>(interpolation_points.size(), 0);
-    auto contribution_counter = new std::vector<double>(interpolation_points.size(), 0);
+    auto interpolation_values = new std::vector<double>(interpolation_points.size(), 0.0);
+    auto contribution_counter = new std::vector<int>(interpolation_points.size(), 0);
 
     int xscale = coord_max*coord_max;
     int yscale = coord_max;
