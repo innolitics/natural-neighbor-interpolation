@@ -1,6 +1,8 @@
 #ifndef KDTREE_H_
 #define KDTREE_H_
 
+#include <cmath>
+
 #include <memory>
 #include <limits>
 #include <queue>
@@ -55,7 +57,7 @@ public:
             if (current.first >= best.distance) {
                 QueryResult *result = new QueryResult();
                 result->value = *(best.node->data);
-                result->distance = best.distance;
+                result->distance = sqrt(best.distance);
                 return result;
             }
             pq.pop();
@@ -74,7 +76,7 @@ public:
         }
         QueryResult *result = new QueryResult();
         result->value = *(best.node->data);
-        result->distance = best.distance;
+        result->distance = sqrt(best.distance);
         return result;
     }
 private:

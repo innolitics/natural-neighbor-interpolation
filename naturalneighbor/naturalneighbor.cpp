@@ -37,8 +37,8 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
     // within a sphere of radius r, where r = distance to nearest known point.
     for (std::size_t i = 0; i < interpolation_points.size(); i++) {
         const kdtree::QueryResult *q = tree->nearest_iterative(interpolation_points[i]);
-        double comparison_distance = q->distance; // Actually distance squared
-        int r = floor(sqrt(comparison_distance));
+        double comparison_distance = q->distance;
+        int r = floor(comparison_distance);
         int px = interpolation_points[i][0];
         int py = interpolation_points[i][1];
         int pz = interpolation_points[i][2];
