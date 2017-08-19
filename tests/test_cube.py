@@ -2,7 +2,8 @@ import numpy as np
 from numpy.testing import assert_allclose, assert_almost_equal
 import pytest
 
-from naturalneighbor import natural_neighbor
+import naturalneighbor
+print(dir(naturalneighbor))
 
 
 def known_cube(value_0_1_1=0, value_1_1_1=0, side_length=1):
@@ -24,13 +25,13 @@ def known_cube(value_0_1_1=0, value_1_1_1=0, side_length=1):
     return known_points, known_values
 
 
-def test_interpolate_on_known_points(self):
+def test_interpolate_on_known_points():
     '''
     If we interpolate precisely on the same grid as our known points, we
     should receive the exact same values back.
     '''
     known_points, _ = known_cube()
-    known_values = np.random.rand(8, dtype=np.float)
+    known_values = np.random.rand(8)
 
     interpolation_grid_ranges = [
         [0, 1, 1],
@@ -38,7 +39,7 @@ def test_interpolate_on_known_points(self):
         [0, 1, 1],
     ]
 
-    actual_interpolated_values = natural_neighbor(
+    actual_interpolated_values = naturalneighbor.natural_neighbor(
         known_points,
         known_values,
         interpolation_grid_ranges
@@ -51,7 +52,7 @@ def test_interpolate_on_known_points(self):
     assert_allclose(actual_interpolated_values, expected_interpolated_values, rtol=0, atol=0)
 
 
-def test_interpolate_between_cube_edges(self):
+def test_interpolate_between_cube_edges():
     value_1_1_1 = 3
     value_0_1_1 = 7
     known_points, known_values = known_cube(value_0_1_1, value_1_1_1)
@@ -62,7 +63,7 @@ def test_interpolate_between_cube_edges(self):
         [0, 1, 0.5],
     ]
 
-    interpolated_values = natural_neighbor(
+    interpolated_values = naturalneighbor.natural_neighbor(
         known_points,
         known_values,
         interpolation_grid_ranges
