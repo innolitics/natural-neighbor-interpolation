@@ -10,7 +10,6 @@ module = Extension(
     extra_compile_args=['--std=c++11'],
     sources=[
         'naturalneighbor/_naturalneighbor.cpp',
-        'naturalneighbor/naturalneighbor.cpp',
     ],
 )
 
