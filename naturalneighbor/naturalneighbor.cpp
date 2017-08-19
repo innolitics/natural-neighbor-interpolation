@@ -1,6 +1,7 @@
 #include <cmath>
 
 #include <vector>
+#include <algorithm>
 
 #include "kdtree.h"
 #include "geometry.h"
@@ -46,12 +47,18 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
         // of r indices. From this subset of points, calculate their distance
         // and tally the ones that fall within the sphere of radius r surrounding
         // interpolation_points[i].
-        for (auto x = px - r; x < px + r; x++) {
-            if (x < 0 || x >= coord_max) { continue; }
-            for (auto y = py - r; y < py + r; y++) {
-                if (y < 0 || y >= coord_max) { continue; }
-                for (auto z = pz - r; z < pz + r; z++) {
-                    if (z < 0 || z >= coord_max) { continue; }
+
+        auto x_neighborhood_min = clamp(px - r, 0, coord_max);
+        auto x_neighborhood_max = clamp(px + r, 0, coord_max);
+        auto y_neighborhood_min = clamp(py - r, 0, coord_max);
+        auto y_neighborhood_max = clamp(py + r, 0, coord_max);
+        auto z_neighborhood_min = clamp(pz - r, 0, coord_max);
+        auto z_neighborhood_max = clamp(pz + r, 0, coord_max);
+
+        for (auto x = x_neighborhood_min; x < x_neighborhood_max; x++) {
+            for (auto y = y_neighborhood_min; y < y_neighborhood_max; y++) {
+                for (auto z = z_neighborhood_min; z < z_neighborhood_max; z++) {
+
                     int idx = x*xscale + y*yscale + z;
                     double distance_x = interpolation_points[idx][0] - px;
                     double distance_y = interpolation_points[idx][1] - py;
