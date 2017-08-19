@@ -4,7 +4,7 @@ import numpy.distutils.misc_util
 
 
 module = Extension(
-    'naturalneighbor',
+    '_naturalneighbor',
     include_dirs=numpy.distutils.misc_util.get_numpy_include_dirs(),
     library_dirs=['/usr/local/lib'],
     extra_compile_args=['--std=c++11'],

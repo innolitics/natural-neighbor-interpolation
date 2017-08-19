@@ -48,12 +48,12 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
         // and tally the ones that fall within the sphere of radius r surrounding
         // interpolation_points[i].
 
-        auto x_neighborhood_min = clamp(px - r, 0, coord_max);
-        auto x_neighborhood_max = clamp(px + r, 0, coord_max);
-        auto y_neighborhood_min = clamp(py - r, 0, coord_max);
-        auto y_neighborhood_max = clamp(py + r, 0, coord_max);
-        auto z_neighborhood_min = clamp(pz - r, 0, coord_max);
-        auto z_neighborhood_max = clamp(pz + r, 0, coord_max);
+        auto x_neighborhood_min = std::clamp(px - r, 0, coord_max);
+        auto x_neighborhood_max = std::clamp(px + r, 0, coord_max);
+        auto y_neighborhood_min = std::clamp(py - r, 0, coord_max);
+        auto y_neighborhood_max = std::clamp(py + r, 0, coord_max);
+        auto z_neighborhood_min = std::clamp(pz - r, 0, coord_max);
+        auto z_neighborhood_max = std::clamp(pz + r, 0, coord_max);
 
         for (auto x = x_neighborhood_min; x < x_neighborhood_max; x++) {
             for (auto y = y_neighborhood_min; y < y_neighborhood_max; y++) {
