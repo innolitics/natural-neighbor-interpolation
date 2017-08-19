@@ -20,9 +20,6 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
      *  - interpolation_points are regularly spaced and ordered
      *    such that X is the outermost loop, then Y, then Z.
      */
-
-    printf("Building KD-Tree\n");
-
     kdtree::kdtree<double> *tree = new kdtree::kdtree<double>();
     for (std::size_t i = 0; i < known_coordinates.size(); i++) {
         tree->add(&known_coordinates[i], &known_values[i]);
@@ -37,7 +34,6 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
         contribution_counter[i] = 0;
     }
 
-    printf("Calculating scattered contributions\n");
     int xscale = coord_max*coord_max;
     int yscale = coord_max;
 
@@ -51,9 +47,6 @@ std::vector<double> *natural_neighbor(std::vector<Point>& known_coordinates,
         int px = interpolation_points[i][0];
         int py = interpolation_points[i][1];
         int pz = interpolation_points[i][2];
-        if (i%10000 == 0){
-            printf("\tPoint %lu of %d: (%d, %d, %d). Radius %d and nearest value %f\n", i, (int) interpolation_points.size(), px, py, pz, r, q->value);
-        }
         // Search neighboring interpolation points within a bounding box
         // of r indices. From this subset of points, calculate their distance
         // and tally the ones that fall within the sphere of radius r surrounding
