@@ -37,16 +37,15 @@ PyMODINIT_FUNC PyInit_naturalneighbor(void) {
 typedef geometry::Point<double, 3> Point;
 
 static PyObject* naturalneighbor_natural_neighbor(PyObject* module, PyObject* args) {
-    int coord_max;
-    PyObject* known_coord_obj,* known_values_obj,* interpolation_points_obj;
+    PyObject* known_coord_obj, *known_values_obj, *interpoled_grid_ranges_obj;
 
-    if (!PyArg_ParseTuple(args, "OOOi", &known_coord_obj,
-                          &known_values_obj, &interpolation_points_obj, &coord_max)) {
+    if (!PyArg_ParseTuple(args, "OOO", &known_coord_obj, &known_values_obj, &interpoled_grid_ranges_obj)) {
         return NULL;
     }
+
     PyObject* known_coord_numpy_arr = PyArray_FROM_OTF(known_coord_obj, NPY_DOUBLE, NPY_IN_ARRAY);
     PyObject* known_values_numpy_arr = PyArray_FROM_OTF(known_values_obj, NPY_DOUBLE, NPY_IN_ARRAY);
-    PyObject* interpolation_points_numpy_arr = PyArray_FROM_OTF(interpolation_points_obj, NPY_DOUBLE, NPY_IN_ARRAY);
+    PyObject* interpolation_points_numpy_arr = PyArray_FROM_OTF(interpoled_grid_ranges_obj, NPY_DOUBLE, NPY_IN_ARRAY);
 
     if (known_coord_numpy_arr == NULL || known_values_numpy_arr == NULL || interpolation_points_numpy_arr == NULL) {
         Py_XDECREF(known_coord_numpy_arr);
