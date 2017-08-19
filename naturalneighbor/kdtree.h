@@ -37,14 +37,6 @@ public:
         m_root.reset();
         m_nodes.clear();
     }
-    const Data *nearest_recursive(const Point &query) const {
-        if (!m_root) {
-            return NULL;
-        }
-        best_match best(m_root, std::numeric_limits<double>::max());
-        nearest(query, m_root, best);
-        return best.node->data;
-    }
     const QueryResult *nearest_iterative(const Point &query) const {
         if (!m_root) {
             return NULL;
