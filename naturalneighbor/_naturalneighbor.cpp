@@ -10,7 +10,7 @@ static char module_docstring[] = "Discrete natural neighbor interpolation in 3D.
 
 static char nn_docstring[] = "Calculate the natural neighbor interpolation of a dataset.";
 
-static PyObject *naturalneighbor_natural_neighbor(PyObject *self, PyObject *args);
+static PyObject* naturalneighbor_natural_neighbor(PyObject* module, PyObject* args);
 
 static PyMethodDef module_methods[] = {
     {"natural_neighbor", naturalneighbor_natural_neighbor, METH_VARARGS, nn_docstring},
@@ -35,7 +35,7 @@ PyMODINIT_FUNC PyInit_naturalneighbor(void) {
 
 typedef geometry::Point<double, 3> Point;
 
-static PyObject *naturalneighbor_natural_neighbor(PyObject *self, PyObject *args) {
+static PyObject* naturalneighbor_natural_neighbor(PyObject* module, PyObject* args) {
     int coord_max;
     PyObject *known_coord_obj, *known_values_obj, *interpolation_points_obj;
 
