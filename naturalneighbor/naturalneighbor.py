@@ -30,17 +30,22 @@ def convert_xyz_to_ijk(points_xyz, interpolated_grid_ranges):
     xyz2ijk = np.linalg.inv(ijk2xyz)
     return apply_affine(xyz2ijk, points_xyz)
 
-def naturalneighbor(points_xyz, values, interpolated_grid_ranges):
+def naturalneighbor(points_xyz, values, interpolated_coord_ranges):
     if points_xyz.ndim != 2 or points_xyz.shape[1] != 3 or points_xyz.shape[0] == 0:
         raise ValueError("Points must be a Nx3 dimensional array where N>0")
     if values.ndim != 1 or values.shape[0] != points_xyz.shape[0]:
         raise ValueError("Values must be a 1 dimensional and have same number of values as points.")
-    interpolated_grid_ranges_arr = np.ascontiguousarray(interpolated_grid_ranges, dtype=np.int)
-    if interpolated_grid_ranges_arr.shape[0] == 3 and interpolated_grid_ranges_arr.shape[1] == 3:
+    points_arr = np.ascontiguousarray(points, dtype=np.double)
+    values_arr = np.ascontiguousarray(values, dtype=np.double)
+    interpolated_coord_ranges_arr = np.ascontiguousarray(interpolated_coord_ranges, dtype=np.int)
+    if interpolated_coord_ranges_arr.shape[0] == 3 and interpolated_coord_ranges_arr.shape[1] == 3:
         raise ValueError("Interpolated grid ranges must be an array like object of size 3x3 where the first dimension "
                          "is x,y,z and the second is (min value, max value, number of points).")
 
-    values_arr = np.ascontiguousarray(values, dtype=np.double)
-    points_ijk = np.ascontiguousarray(convert_xyz_to_ijk(points_xyz, interpolated_grid_ranges))
-    interpolated_values = _naturalneighbor.natural_neighbor(points_ijk, values_arr, interpolated_grid_ranges_arr)
+    interpolated_values_shape = interpolated_coord_ranges_arr[2, :]
+    interpolated_values = np.zeros(interpolated_values_shape, dtype=np.double, order='C')
+
+    interpolated_values = _naturalneighbor.natural_neighbor(
+            points_arr, values_arr, interpolated_coord_ranges_arr, interpolated_values)
+
     return interpolated_values

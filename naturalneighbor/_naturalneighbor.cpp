@@ -1,10 +1,13 @@
+#include <cmath>
+
 #include <vector>
+#include <algorithm>
 
 #include "Python.h"
 #include "numpy/arrayobject.h"
 
+#include "kdtree.h"
 #include "geometry.h"
-#include "naturalneighbor.h"
 
 static char module_docstring[] = "Discrete natural neighbor interpolation in 3D.";
 
@@ -37,53 +40,100 @@ PyMODINIT_FUNC PyInit_naturalneighbor(void) {
 typedef geometry::Point<double, 3> Point;
 
 static PyObject* naturalneighbor_natural_neighbor(PyObject* module, PyObject* args) {
-    PyObject* known_coord_obj, *known_values_obj, *interpolated_grid_ranges_numpy_arr_obj;
+    PyArrayObject *known_coords, *known_values, *interpolated_coord_ranges, *interpolated_values;
 
-    if (!PyArg_ParseTuple(args, "OOO", &known_coord_obj, &known_values_obj, &interpolated_grid_ranges_numpy_arr_obj)) {
+    if (!PyArg_ParseTuple(args, "O!O!O!", 
+                &PyArray_Type, &known_coords,
+                &PyArray_Type, &known_values,
+                &PyArray_Type, &interpolated_coord_ranges,
+                &PyArray_Type, &interpolated_values)) {
         return NULL;
     }
 
-    PyObject* known_coord_numpy_arr = PyArray_FROM_OTF(known_coord_obj, NPY_DOUBLE, NPY_IN_ARRAY);
-    PyObject* known_values_numpy_arr = PyArray_FROM_OTF(known_values_obj, NPY_DOUBLE, NPY_IN_ARRAY);
-    PyObject* interpolated_grid_ranges_numpy_arr = PyArray_FROM_OTF(interpolated_grid_ranges_numpy_arr_obj, NPY_DOUBLE, NPY_IN_ARRAY);
+    npy_intp* known_coordinates_dims = PyArray_DIMS(known_coords);
+    double* known_values = (double*)PyArray_GETPTR1(known_values, 0);
 
-    if (known_coord_numpy_arr == NULL || known_values_numpy_arr == NULL || interpolated_grid_ranges_numpy_arr == NULL) {
-        Py_XDECREF(known_coord_numpy_arr);
-        Py_XDECREF(known_values_numpy_arr);
-        Py_XDECREF(interpolated_grid_ranges_numpy_arr);
-        return NULL;
-    }
-
-    npy_intp* known_coordinates_dims = PyArray_DIMS(known_coord_numpy_arr);
-    double* known_values = (double*)PyArray_GETPTR1(known_values_numpy_arr, 0);
-
-    //TODO: Add in bounds checking if user passes invalid shape. Do this type of checking at the python level
     int num_known_points = known_coordinates_dims[0];
-    std::vector<Point> known_coords(num_known_points);
-    std::vector<double> known_vals(num_known_points);
+
+    // TODO: think of a way to avoid using these intermediate vectors
+    auto known_coords_vec = new std::vector<Point>(num_known_points);
+    auto known_values_vec = new std::vector<double>(num_known_points);
 
     for (npy_intp i = 0; i < num_known_points; i++) {
-        known_coords[i] = Point(*(double*)PyArray_GETPTR2(known_coord_numpy_arr, i, 0),
-                                *(double*)PyArray_GETPTR2(known_coord_numpy_arr, i, 1),
-                                *(double*)PyArray_GETPTR2(known_coord_numpy_arr, i, 2));
-        known_vals[i] = *(double*)PyArray_GETPTR1(known_values_numpy_arr, i);
+        known_coords_vec[i] = Point(
+                *(double*)PyArray_GETPTR2(known_coords, i, 0),
+                *(double*)PyArray_GETPTR2(known_coords, i, 1),
+                *(double*)PyArray_GETPTR2(known_coords, i, 2));
+
+        known_values_vec[i] = *(double*)PyArray_GETPTR1(known_values_vec, i);
     }
 
-    double* interpolation_values = naturalneighbor::natural_neighbor(known_coords,
-                                                                     known_vals,
-                                                                     );
-    npy_intp dims[] = {num_interpolation_points};
-    PyObject* result = PyArray_ZEROS(1, dims, NPY_DOUBLE, 0);
-    for (int i = 0; i < num_interpolation_points; i++) {
-       * ((double*)PyArray_GETPTR1(result, i)) = (*interpolation_values)[i];
+    kdtree::kdtree<double> *tree = new kdtree::kdtree<double>();
+    for (std::size_t i = 0; i < num_known_points; i++) {
+        tree->add(&known_coords_vec[i], &known_values_vec[i]);
+    }
+    tree->build();
+
+    auto interpolation_values = new std::vector<double>(interpolation_points.size(), 0.0);
+    auto contribution_counter = new std::vector<int>(interpolation_points.size(), 0);
+
+    int xscale = coord_max*coord_max;
+    int yscale = coord_max;
+
+    // Scatter method discrete Sibson
+    // For each interpolation point p, search neighboring interpolation points
+    // within a sphere of radius r, where r = distance to nearest known point.
+    for (std::size_t i = 0; i < interpolation_points.size(); i++) {
+        const kdtree::QueryResult *q = tree->nearest_iterative(interpolation_points[i]);
+        double comparison_distance = q->distance;
+        int r = floor(comparison_distance);
+        int px = interpolation_points[i][0];
+        int py = interpolation_points[i][1];
+        int pz = interpolation_points[i][2];
+        // Search neighboring interpolation points within a bounding box
+        // of r indices. From this subset of points, calculate their distance
+        // and tally the ones that fall within the sphere of radius r surrounding
+        // interpolation_points[i].
+
+        auto x_neighborhood_min = std::clamp(px - r, 0, coord_max);
+        auto x_neighborhood_max = std::clamp(px + r, 0, coord_max);
+        auto y_neighborhood_min = std::clamp(py - r, 0, coord_max);
+        auto y_neighborhood_max = std::clamp(py + r, 0, coord_max);
+        auto z_neighborhood_min = std::clamp(pz - r, 0, coord_max);
+        auto z_neighborhood_max = std::clamp(pz + r, 0, coord_max);
+
+        for (auto x = x_neighborhood_min; x < x_neighborhood_max; x++) {
+            for (auto y = y_neighborhood_min; y < y_neighborhood_max; y++) {
+                for (auto z = z_neighborhood_min; z < z_neighborhood_max; z++) {
+
+                    int idx = x*xscale + y*yscale + z;
+                    double distance_x = interpolation_points[idx][0] - px;
+                    double distance_y = interpolation_points[idx][1] - py;
+                    double distance_z = interpolation_points[idx][2] - pz;
+                    if (distance_x*distance_x + distance_y*distance_y
+                            + distance_z*distance_z > comparison_distance){
+                        continue;
+                    }
+                    (*interpolation_values)[idx] += q->value;
+                    (*contribution_counter)[idx] += 1;
+                }
+            }
+        }
     }
 
-    printf("Calculation completed.\n");
-    Py_DECREF(known_coord_numpy_arr);
-    Py_DECREF(known_values_numpy_arr);
-    Py_DECREF(interpolated_grid_ranges_numpy_arr);
+    for (std::size_t i = 0; i < interpolation_values->size(); i++) {
+        if ((*contribution_counter)[i] != 0) {
+            (*interpolation_values)[i] /= (*contribution_counter)[i];
+        } else {
+            (*interpolation_values)[i] = 0; //TODO: this is just 0, better way to mark NAN?
+        }
+    }
 
-    delete interpolation_values;
+    delete contribution_counter;
+    delete tree;
+    delete known_coords_vec;
+    delete known_values_vec;
 
-    return result;
+    return interpolation_values;
+}
 }
