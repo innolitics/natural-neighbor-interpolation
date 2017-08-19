@@ -21,13 +21,13 @@ static PyMethodDef module_methods[] = {
 
 static struct PyModuleDef module = {
    PyModuleDef_HEAD_INIT,
-   "naturalneighbor",
+   "_naturalneighbor",
    module_docstring,
    -1,  // TODO: investigate whether we can support sub-interpreters
    module_methods
 };
 
-PyMODINIT_FUNC PyInit_naturalneighbor(void) {
+PyMODINIT_FUNC PyInit__naturalneighbor(void) {
     PyObject* m = PyModule_Create(&module);
     if (m == NULL) {
         return NULL;
