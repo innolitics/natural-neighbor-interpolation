@@ -4,12 +4,12 @@ import numpy.distutils.misc_util
 
 
 module = Extension(
-    '_naturalneighbor',
+    'cnaturalneighbor',
     include_dirs=numpy.distutils.misc_util.get_numpy_include_dirs(),
     library_dirs=['/usr/local/lib'],
     extra_compile_args=['--std=c++11'],
     sources=[
-        'naturalneighbor/_naturalneighbor.cpp',
+        'naturalneighbor/cnaturalneighbor.cpp',
     ],
 )
 

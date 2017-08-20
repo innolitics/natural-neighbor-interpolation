@@ -1,3 +1,3 @@
-from .naturalneighbor import natural_neighbor
+from .naturalneighbor import griddata
 
-__all__ = ['natural_neighbor']
+__all__ = ['griddata']

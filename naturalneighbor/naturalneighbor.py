@@ -1,6 +1,6 @@
 import numpy as np
 
-from . import _naturalneighbor
+import cnaturalneighbor
 
 def apply_affine(affine_matrix, A):
     mm, m = A.shape

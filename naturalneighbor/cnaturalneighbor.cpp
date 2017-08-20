@@ -11,23 +11,24 @@
 
 static char module_docstring[] = "Discrete natural neighbor interpolation in 3D.";
 
-static char nn_docstring[] = "Calculate the natural neighbor interpolation of a dataset.";
+static char griddata_docstring[] = "Calculate the natural neighbor interpolation of a dataset.";
 
-static PyObject* naturalneighbor_natural_neighbor(PyObject* module, PyObject* args);
+static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args);
 
 static PyMethodDef module_methods[] = {
-    {"natural_neighbor", naturalneighbor_natural_neighbor, METH_VARARGS, nn_docstring}
+    {"griddata", cnaturalneighbor_griddata, METH_VARARGS, griddata_docstring},
+    {NULL, NULL, 0, NULL}
 };
 
 static struct PyModuleDef module = {
    PyModuleDef_HEAD_INIT,
-   "_naturalneighbor",
+   "cnaturalneighbor",
    module_docstring,
    -1,  // TODO: investigate whether we can support sub-interpreters
    module_methods
 };
 
-PyMODINIT_FUNC PyInit__naturalneighbor(void) {
+PyMODINIT_FUNC PyInit_cnaturalneighbor(void) {
     PyObject* m = PyModule_Create(&module);
     if (m == NULL) {
         return NULL;
@@ -39,7 +40,7 @@ PyMODINIT_FUNC PyInit__naturalneighbor(void) {
 
 typedef geometry::Point<double, 3> Point;
 
-static std::size_t  clamp(std::size_t val, std::size_t min, std::size_t max) {
+std::size_t clamp(std::size_t val, std::size_t min, std::size_t max) {
     if (val < min) {
         return min;
     } else if (val > max) {
@@ -49,7 +50,8 @@ static std::size_t  clamp(std::size_t val, std::size_t min, std::size_t max) {
     }
 }
 
-static PyObject* naturalneighbor_natural_neighbor(PyObject* module, PyObject* args) {
+static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
+    // TODO: remove contribute counter from inputs
     PyArrayObject *known_coords, *known_values, *interpolated_coord_ranges, *interpolated_values, *contribution_counter;
 
     if (!PyArg_ParseTuple(args, "O!O!O!O!O!",
