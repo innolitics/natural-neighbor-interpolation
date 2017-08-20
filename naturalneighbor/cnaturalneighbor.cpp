@@ -52,12 +52,11 @@ std::size_t clamp(std::size_t val, std::size_t min, std::size_t max) {
 
 static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
     // TODO: remove contribute counter from inputs
-    PyArrayObject *known_coords, *known_values, *interpolated_coord_ranges, *interpolated_values, *contribution_counter;
+    PyArrayObject *known_coords, *known_values, *interpolated_values, *contribution_counter;
 
-    if (!PyArg_ParseTuple(args, "O!O!O!O!O!",
+    if (!PyArg_ParseTuple(args, "O!O!O!O!",
                 &PyArray_Type, &known_coords,
                 &PyArray_Type, &known_values,
-                &PyArray_Type, &interpolated_coord_ranges,
                 &PyArray_Type, &interpolated_values,
                 &PyArray_Type, &contribution_counter)) {
         return NULL;

@@ -50,7 +50,6 @@ def griddata(known_points, known_values, interp_ranges):
     cnaturalneighbor.griddata(
         known_points_ijk,
         known_values,
-        interp_ranges,
         interp_values,
         contribution_counter,
     )
