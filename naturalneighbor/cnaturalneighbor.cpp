@@ -101,8 +101,8 @@ static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
                 auto query_point = Point(i, j, k);
                 auto nearest_known_point = tree->nearest_iterative(query_point);
 
-                double distance_sq_to_known_point = nearest_known_point->distance;
-                int roi_radius = ceil(sqrt(distance_sq_to_known_point));
+                double distance_sq_query_to_known = nearest_known_point->distance;
+                int roi_radius = ceil(sqrt(distance_sq_query_to_known));
 
                 auto i_roi_min = clamp(i - roi_radius, 0, ni - 1);
                 auto i_roi_max = clamp(i + roi_radius, 0, ni - 1);
@@ -117,9 +117,9 @@ static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
                             double deltai_2 = (i - i_roi)*(i - i_roi);
                             double deltaj_2 = (j - j_roi)*(j - j_roi);
                             double deltak_2 = (k - k_roi)*(k - k_roi);
-                            double distance_sq_to_roi_point = deltai_2 + deltaj_2 + deltak_2;
+                            double distance_sq_roi_to_known = deltai_2 + deltaj_2 + deltak_2;
 
-                            if (distance_sq_to_roi_point <= distance_sq_to_known_point) {
+                            if (distance_sq_roi_to_known <= distance_sq_query_to_known) {
                                 std::size_t indice = nj*nk*i + nk*j + k;
                                 interp_values_ptr[indice] += nearest_known_point->value;
                                 contribution_counter[indice] += 1;
