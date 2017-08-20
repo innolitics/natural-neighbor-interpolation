@@ -39,9 +39,6 @@ def griddata(known_points, known_values, interp_ranges):
     interp_values_shape = np.floor(1 + (stops - starts)/steps).astype(np.int)
     interp_values = np.zeros(interp_values_shape, dtype=np.double)
 
-    # TODO: allocate/free `contribution_counter` within extension module
-    contribution_counter = np.zeros(interp_values_shape, dtype=np.double)
-
     known_points_ijk = _xyz_to_ijk(known_points, starts, steps)
     known_points_ijk = np.ascontiguousarray(known_points_ijk, dtype=np.double)
 
@@ -51,7 +48,6 @@ def griddata(known_points, known_values, interp_ranges):
         known_points_ijk,
         known_values,
         interp_values,
-        contribution_counter,
     )
 
     return interp_values

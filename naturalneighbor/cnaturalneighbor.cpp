@@ -55,21 +55,18 @@ std::size_t clamp(std::size_t val, std::size_t min, std::size_t max) {
 
 
 static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
-    // TODO: remove contribute counter from inputs
-    PyArrayObject *known_coords, *known_values, *interp_values, *contribution_counter;
+    PyArrayObject *known_coords, *known_values, *interp_values;
 
-    if (!PyArg_ParseTuple(args, "O!O!O!O!",
+    if (!PyArg_ParseTuple(args, "O!O!O!",
                 &PyArray_Type, &known_coords,
                 &PyArray_Type, &known_values,
-                &PyArray_Type, &interp_values,
-                &PyArray_Type, &contribution_counter)) {
+                &PyArray_Type, &interp_values)) {
         return NULL;
     }
 
     npy_intp* known_coordinates_dims = PyArray_DIMS(known_coords);
     npy_intp* interp_values_shape = PyArray_DIMS(interp_values);
     double* interp_values_ptr = (double*)PyArray_GETPTR1(interp_values, 0);
-    double* contribution_counter_ptr = (double*)PyArray_GETPTR1(contribution_counter, 0);
 
     std::size_t num_known_points = known_coordinates_dims[0];
 
@@ -98,6 +95,9 @@ static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
     std::size_t ni = interp_values_shape[0];
     std::size_t nj = interp_values_shape[1];
     std::size_t nk = interp_values_shape[2];
+
+    auto contribution_counter = new double[ni*nj*nk];
+
     for (std::size_t i = 0; i < ni; i++) {
         for (std::size_t j = 0; j < nj; j++) {
             for (std::size_t k = 0; k < nk; k++) {
@@ -129,7 +129,7 @@ static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
                             if (distance_sq_to_roi_point <= distance_sq_to_known_point) {
                                 std::size_t indice = nj*nk*i + nk*j + k;
                                 interp_values_ptr[indice] += nearest_known_point->value;
-                                contribution_counter_ptr[indice] += 1;
+                                contribution_counter[indice] += 1;
                             }
                         }
                     }
@@ -142,13 +142,14 @@ static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
         for (std::size_t j = 0; j < nj; j++) {
             for (std::size_t k = 0; k < nk; k++) {
                 auto indice = nj*nk*i + nk*j + k;
-                if (contribution_counter_ptr[indice] != 0) {
-                    interp_values_ptr[indice] /= contribution_counter_ptr[indice];
+                if (contribution_counter[indice] != 0) {
+                    interp_values_ptr[indice] /= contribution_counter[indice];
                 }
             }
         }
     }
 
+    delete contribution_counter;
     delete tree;
     delete known_coords_vec;
     delete known_values_vec;

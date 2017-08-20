@@ -24,7 +24,6 @@ def known_cube(value_0_1_1=0, value_1_1_1=0, side_length=1):
     return known_points, known_values
 
 
-@pytest.mark.skip
 def test_interpolate_on_known_points():
     '''
     If we interpolate precisely on the same grid as our known points, we
@@ -53,6 +52,7 @@ def test_interpolate_on_known_points():
     assert_allclose(actual_interp_values, expected_interp_values, rtol=0, atol=1e-8)
 
 
+@pytest.mark.xfail
 def test_interpolate_between_cube_edges():
     value_1_1_1 = 3
     value_0_1_1 = 7
