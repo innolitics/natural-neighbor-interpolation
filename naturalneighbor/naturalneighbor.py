@@ -36,7 +36,7 @@ def griddata(known_points, known_values, interp_ranges):
     if np.any(stops - starts <= 0):
         raise ValueError("Invalid interp_ranges: start < stop")
 
-    interp_values_shape = np.ceil((stops - starts)/steps).astype(np.int)
+    interp_values_shape = np.floor(1 + (stops - starts)/steps).astype(np.int)
     interp_values = np.zeros(interp_values_shape, dtype=np.double)
 
     # TODO: allocate/free `contribution_counter` within extension module

@@ -9,6 +9,10 @@
 #include "kdtree.h"
 #include "geometry.h"
 
+
+typedef geometry::Point<double, 3> Point;
+
+
 static char module_docstring[] = "Discrete natural neighbor interpolation in 3D.";
 
 static char griddata_docstring[] = "Calculate the natural neighbor interpolation of a dataset.";
@@ -38,7 +42,6 @@ PyMODINIT_FUNC PyInit_cnaturalneighbor(void) {
     return m;
 }
 
-typedef geometry::Point<double, 3> Point;
 
 std::size_t clamp(std::size_t val, std::size_t min, std::size_t max) {
     if (val < min) {
@@ -50,21 +53,22 @@ std::size_t clamp(std::size_t val, std::size_t min, std::size_t max) {
     }
 }
 
+
 static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
     // TODO: remove contribute counter from inputs
-    PyArrayObject *known_coords, *known_values, *interpolated_values, *contribution_counter;
+    PyArrayObject *known_coords, *known_values, *interp_values, *contribution_counter;
 
     if (!PyArg_ParseTuple(args, "O!O!O!O!",
                 &PyArray_Type, &known_coords,
                 &PyArray_Type, &known_values,
-                &PyArray_Type, &interpolated_values,
+                &PyArray_Type, &interp_values,
                 &PyArray_Type, &contribution_counter)) {
         return NULL;
     }
 
     npy_intp* known_coordinates_dims = PyArray_DIMS(known_coords);
-    npy_intp* interpolated_values_shape = PyArray_DIMS(interpolated_values);
-    double* interpolated_values_ptr = (double*)PyArray_GETPTR1(interpolated_values, 0);
+    npy_intp* interp_values_shape = PyArray_DIMS(interp_values);
+    double* interp_values_ptr = (double*)PyArray_GETPTR1(interp_values, 0);
     double* contribution_counter_ptr = (double*)PyArray_GETPTR1(contribution_counter, 0);
 
     std::size_t num_known_points = known_coordinates_dims[0];
@@ -91,43 +95,42 @@ static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
     // Scatter method discrete Sibson
     // For each interpolation point p, search neighboring interpolation points
     // within a sphere of radius r, where r = distance to nearest known point.
-    std::size_t ni = interpolated_values_shape[0];
-    std::size_t nj = interpolated_values_shape[1];
-    std::size_t nk = interpolated_values_shape[2];
+    std::size_t ni = interp_values_shape[0];
+    std::size_t nj = interp_values_shape[1];
+    std::size_t nk = interp_values_shape[2];
     for (std::size_t i = 0; i < ni; i++) {
         for (std::size_t j = 0; j < nj; j++) {
             for (std::size_t k = 0; k < nk; k++) {
-                const kdtree::QueryResult *q = tree->nearest_iterative(
-                    Point(i, j, k)
-                );
-                
-                double distance_squared = q->distance;
-                int r = ceil(sqrt(distance_squared));
+                auto query_point = Point(i, j, k);
+                auto nearest_known_point = tree->nearest_iterative(query_point);
+
+                double distance_sq_to_known_point = nearest_known_point->distance;
+                int roi_radius = ceil(sqrt(distance_sq_to_known_point));
+
                 // Search neighboring interpolation points within a bounding box
                 // of r indices. From this subset of points, calculate their distance
                 // and tally the ones that fall within the sphere of radius r surrounding
                 // interpolation_points[i].
+                auto i_roi_min = clamp(i - roi_radius, 0, ni - 1);
+                auto i_roi_max = clamp(i + roi_radius, 0, ni - 1);
+                auto j_roi_min = clamp(j - roi_radius, 0, nj - 1);
+                auto j_roi_max = clamp(j + roi_radius, 0, nj - 1);
+                auto k_roi_min = clamp(k - roi_radius, 0, nk - 1);
+                auto k_roi_max = clamp(k + roi_radius, 0, nk - 1);
 
-                auto i_neighborhood_min = clamp(i - r, 0, ni);
-                auto i_neighborhood_max = clamp(i + r, 0, ni);
-                auto j_neighborhood_min = clamp(j - r, 0, nj);
-                auto j_neighborhood_max = clamp(j + r, 0, nj);
-                auto k_neighborhood_min = clamp(k - r, 0, nk);
-                auto k_neighborhood_max = clamp(k + r, 0, nk);
+                for (std::size_t i_roi = i_roi_min; i_roi <= i_roi_max; i_roi++) {
+                    for (std::size_t j_roi = j_roi_min; j_roi <= j_roi_max; j_roi++) {
+                        for (std::size_t k_roi = k_roi_min; k_roi <= k_roi_max; k_roi++) {
+                            double deltai_2 = (i - i_roi)*(i - i_roi);
+                            double deltaj_2 = (j - j_roi)*(j - j_roi);
+                            double deltak_2 = (k - k_roi)*(k - k_roi);
+                            double distance_sq_to_roi_point = deltai_2 + deltaj_2 + deltak_2;
 
-
-                for (auto i_neighborhood = i_neighborhood_min; i_neighborhood < i_neighborhood_max; i_neighborhood++) {
-                    for (auto j_neighborhood = j_neighborhood_min; j_neighborhood < j_neighborhood_max; j_neighborhood++) {
-                        for (auto k_neighborhood = k_neighborhood_min; k_neighborhood < k_neighborhood_max; k_neighborhood++){
-                            double distance_i = i - i_neighborhood;
-                            double distance_j = j - j_neighborhood;
-                            double distance_k = k - k_neighborhood;
-                            if (distance_i*distance_i + distance_j*distance_j
-                                    + distance_k*distance_k > distance_squared){
-                                continue;
+                            if (distance_sq_to_roi_point <= distance_sq_to_known_point) {
+                                std::size_t indice = nj*nk*i + nk*j + k;
+                                interp_values_ptr[indice] += nearest_known_point->value;
+                                contribution_counter_ptr[indice] += 1;
                             }
-                            interpolated_values_ptr[i + ni*j + ni*nj*k] += q->value;
-                            contribution_counter_ptr[i + ni*j + ni*nj*k] += 1;
                         }
                     }
                 }
@@ -138,13 +141,17 @@ static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
     for (std::size_t i = 0; i < ni; i++) {
         for (std::size_t j = 0; j < nj; j++) {
             for (std::size_t k = 0; k < nk; k++) {
-                if (contribution_counter_ptr[i + ni*j + ni*nj*k] != 0) {
-                    interpolated_values_ptr[i + ni*j + ni*nj*k] /= contribution_counter_ptr[i + ni*j + ni*nj*k];
+                auto indice = nj*nk*i + nk*j + k;
+                if (contribution_counter_ptr[indice] != 0) {
+                    interp_values_ptr[indice] /= contribution_counter_ptr[indice];
                 }
             }
         }
     }
 
     delete tree;
+    delete known_coords_vec;
+    delete known_values_vec;
+
     Py_RETURN_NONE;
 }
