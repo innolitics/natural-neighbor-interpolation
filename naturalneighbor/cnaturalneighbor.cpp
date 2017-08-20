@@ -89,9 +89,6 @@ static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
     }
     tree->build();
 
-    // Scatter method discrete Sibson
-    // For each interpolation point p, search neighboring interpolation points
-    // within a sphere of radius r, where r = distance to nearest known point.
     std::size_t ni = interp_values_shape[0];
     std::size_t nj = interp_values_shape[1];
     std::size_t nk = interp_values_shape[2];
@@ -107,10 +104,6 @@ static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
                 double distance_sq_to_known_point = nearest_known_point->distance;
                 int roi_radius = ceil(sqrt(distance_sq_to_known_point));
 
-                // Search neighboring interpolation points within a bounding box
-                // of r indices. From this subset of points, calculate their distance
-                // and tally the ones that fall within the sphere of radius r surrounding
-                // interpolation_points[i].
                 auto i_roi_min = clamp(i - roi_radius, 0, ni - 1);
                 auto i_roi_max = clamp(i + roi_radius, 0, ni - 1);
                 auto j_roi_min = clamp(j - roi_radius, 0, nj - 1);
