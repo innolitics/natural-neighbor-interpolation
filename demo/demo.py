@@ -34,9 +34,9 @@ if __name__ == '__main__':
     known_points = np.round(np.random.rand(num_known_points, 3) * np.min([xmax, ymax, zmax]))
 
     grid_ranges = [
-        [0, xmax, 1],
-        [0, ymax, 1],
-        [0, zmax, 1],
+        [0, xmax - 1, 1],
+        [0, ymax - 1, 1],
+        [0, zmax - 1, 1],
     ]
 
     grid = np.mgrid[0:xmax:1, 0:ymax:1, 0:zmax:1]
@@ -44,17 +44,17 @@ if __name__ == '__main__':
     def f(x, y, z):
         return np.sin(y/10) + np.sin(x/10)
 
-    known_vals = np.array([f(*point) for point in known_points], dtype=np.float64)
-    true_vals = np.reshape([f(x,y,z) for x,y,z in zip(*grid)], final_shape)
+    known_values = np.array([f(*point) for point in known_points], dtype=np.float64)
+    true_values = np.reshape([f(x,y,z) for x,y,z in zip(*grid)], final_shape)
 
-    nn_interp = naturalneighbor.griddata(known_points, known_vals, grid_ranges)
-    display_method_error('Natural Neighbor', nn_interp, true_vals)
+    nn_interp = naturalneighbor.griddata(known_points, known_values, grid_ranges)
+    display_method_error('Natural Neighbor', nn_interp, true_values)
 
-    linear_interp = scipy.interpolate.griddata(known_points, known_vals, grid, method='linear')
-    display_method_error('Linear Barycentric', linear_interp, true_vals)
+    linear_interp = scipy.interpolate.griddata(known_points, known_values, tuple(grid), method='linear')
+    display_method_error('Linear Barycentric', linear_interp, true_values)
 
     plt.figure(1)
-    plt.imshow(true_vals[:,:,20])
+    plt.imshow(true_values[:,:,20])
     plt.title("True Values")
     plt.figure(2)
     plt.imshow(nn_interp[:,:,20])
