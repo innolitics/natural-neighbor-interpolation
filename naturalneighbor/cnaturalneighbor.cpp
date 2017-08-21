@@ -55,45 +55,45 @@ std::size_t clamp(std::size_t val, std::size_t min, std::size_t max) {
 
 
 static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
-    PyArrayObject *known_coords, *known_values, *interp_values;
+    PyArrayObject *known_points_ijk, *known_values, *interp_values;
 
     if (!PyArg_ParseTuple(args, "O!O!O!",
-                &PyArray_Type, &known_coords,
+                &PyArray_Type, &known_points_ijk,
                 &PyArray_Type, &known_values,
                 &PyArray_Type, &interp_values)) {
         return NULL;
     }
 
-    npy_intp* known_coordinates_dims = PyArray_DIMS(known_coords);
+    npy_intp* known_points_ijk_dims = PyArray_DIMS(known_points_ijk);
+    std::size_t num_known_points = known_points_ijk_dims[0];
+
     npy_intp* interp_values_shape = PyArray_DIMS(interp_values);
-    double* interp_values_ptr = (double*)PyArray_GETPTR1(interp_values, 0);
-
-    std::size_t num_known_points = known_coordinates_dims[0];
-
-    // TODO: think of a way to avoid using these intermediate vectors
-    auto known_coords_vec = new std::vector<Point>(num_known_points);
-    auto known_values_vec = new std::vector<double>(num_known_points);
-
-    for (std::size_t i = 0; i < num_known_points; i++) {
-        (*known_coords_vec)[i] = Point(
-                *(double*)PyArray_GETPTR2(known_coords, i, 0),
-                *(double*)PyArray_GETPTR2(known_coords, i, 1),
-                *(double*)PyArray_GETPTR2(known_coords, i, 2));
-
-        (*known_values_vec)[i] = *(double*)PyArray_GETPTR1(known_values, i);
-    }
-
-    kdtree::kdtree<double> *tree = new kdtree::kdtree<double>();
-    for (std::size_t i = 0; i < num_known_points; i++) {
-        tree->add(&(*known_coords_vec)[i], &(*known_values_vec)[i]);
-    }
-    tree->build();
-
     std::size_t ni = interp_values_shape[0];
     std::size_t nj = interp_values_shape[1];
     std::size_t nk = interp_values_shape[2];
 
-    auto contribution_counter = new double[ni*nj*nk];
+    double* known_values_ptr = (double*)PyArray_GETPTR1(known_values, 0);
+    double* interp_values_ptr = (double*)PyArray_GETPTR1(interp_values, 0);
+
+    // TODO: make kd-tree manage memeory for points and values and remove these
+    // intermediate vectors; perhaps would be best to pass-by-value into the
+    // kdtree.add for our purposes
+    auto known_points_ijk_vec = new std::vector<Point>(num_known_points);
+
+    for (std::size_t i = 0; i < num_known_points; i++) {
+        (*known_points_ijk_vec)[i] = Point(
+                *(double*)PyArray_GETPTR2(known_points_ijk, i, 0),
+                *(double*)PyArray_GETPTR2(known_points_ijk, i, 1),
+                *(double*)PyArray_GETPTR2(known_points_ijk, i, 2));
+    }
+
+    kdtree::kdtree<double> *tree = new kdtree::kdtree<double>();
+    for (std::size_t i = 0; i < num_known_points; i++) {
+        tree->add(&(*known_points_ijk_vec)[i], known_values_ptr + i);
+    }
+    tree->build();
+
+    auto contribution_counter = new double[ni*nj*nk]();
 
     for (std::size_t i = 0; i < ni; i++) {
         for (std::size_t j = 0; j < nj; j++) {
@@ -142,10 +142,9 @@ static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
         }
     }
 
-    delete contribution_counter;
+    delete[] contribution_counter;
     delete tree;
-    delete known_coords_vec;
-    delete known_values_vec;
+    delete known_points_ijk_vec;
 
     Py_RETURN_NONE;
 }
