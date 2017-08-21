@@ -43,7 +43,7 @@ PyMODINIT_FUNC PyInit_cnaturalneighbor(void) {
 }
 
 
-std::size_t clamp(std::size_t val, std::size_t min, std::size_t max) {
+long clamp(long val, long min, long max) {
     if (val < min) {
         return min;
     } else if (val > max) {
@@ -93,7 +93,7 @@ static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
     }
     tree->build();
 
-    auto contribution_counter = new double[ni*nj*nk]();
+    auto contribution_counter = new unsigned long[ni*nj*nk]();
 
     for (std::size_t i = 0; i < ni; i++) {
         for (std::size_t j = 0; j < nj; j++) {
