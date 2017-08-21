@@ -52,7 +52,6 @@ def test_interp_on_known_points():
     assert_allclose(actual_interp_values, expected_interp_values, rtol=0, atol=1e-8)
 
 
-@pytest.mark.xfail(reason="this is failing due to a bug")
 def test_interp_constant_values():
     known_points, _ = known_cube()
     known_values = np.ones((8,))*7
