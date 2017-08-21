@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 import naturalneighbor
 
 
-def display_method_error(method, interpolated_values, truth):
-    error = (truth - interpolated_values)
+def display_method_error(method, interp_values, truth):
+    error = (truth - interp_values)
     numerical_error = error[~np.isnan(error)]
     mean_err = np.mean(np.abs(numerical_error))
     std_err = np.std(np.abs(numerical_error))
