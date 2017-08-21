@@ -1,5 +1,5 @@
 import numpy as np
-from numpy.testing import assert_allclose, assert_almost_equal
+from numpy.testing import assert_allclose
 
 import naturalneighbor
 
@@ -18,8 +18,6 @@ def test_identity_3x3():
 def test_shift_3x3():
     starts = np.array([0, -1, 2])
     steps = np.array([1, 1, 1])
-    num_dimensions = 3
-    num_points = 10
     points_xyz = np.array([[0, 0, 0], [1, 1, 1]])
     actual_points_ijk = naturalneighbor._xyz_to_ijk(points_xyz, starts, steps)
     expected_points_ijk = np.array([[0, 1, -2], [1, 2, -1]])
@@ -29,8 +27,6 @@ def test_shift_3x3():
 def test_shift_and_scale_3x3():
     starts = np.array([0, -1, 2])
     steps = np.array([1, 0.5, 0.125])
-    num_dimensions = 3
-    num_points = 10
     points_xyz = np.array([[0, 0, 0], [1, 1, 1]])
     actual_points_ijk = naturalneighbor._xyz_to_ijk(points_xyz, starts, steps)
     expected_points_ijk = np.array([[0, 2, -16], [1, 4, -8]])
