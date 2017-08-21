@@ -14,12 +14,6 @@ See https://doi.org/10.1109/TVCG.2006.27 for details.
 Future Work
 -----------
 
-- Change arguments so that you don't need to pass in a full grid (i.e. change
-  from the `griddata` API); this is good because it reduces memory footprint
-  and, unlike other griddata methods, I think we really need our interpolated
-  points to lie on a grid.
-- Add a bunch of tests
-- Check that the input dimensions are correct
 - Add option to avoid extrapolation
 - Support floats and doubles
 - Support 2D
