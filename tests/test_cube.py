@@ -52,16 +52,39 @@ def test_interpolate_on_known_points():
     assert_allclose(actual_interp_values, expected_interp_values, rtol=0, atol=1e-8)
 
 
-@pytest.mark.xfail
-def test_interpolate_between_cube_edges():
-    value_1_1_1 = 3
-    value_0_1_1 = 7
-    known_points, known_values = known_cube(value_0_1_1, value_1_1_1)
+def test_interp_constant_values():
+    known_points, _ = known_cube()
+    known_values = np.ones((8,))*7
 
     interpolation_grid_ranges = [
         [0, 1, 0.5],
         [0, 1, 0.5],
         [0, 1, 0.5],
+    ]
+
+    actual_interp_values = griddata(
+        known_points,
+        known_values,
+        interpolation_grid_ranges,
+    )
+
+    np.set_printoptions(formatter={'float': lambda x: "{0:0.1f}".format(x)})
+    print("actual_interp_values", actual_interp_values)
+    print("known_values", known_values)
+
+    expected_interp_values = np.ones_like(actual_interp_values)*7
+    assert_allclose(actual_interp_values, expected_interp_values, rtol=0, atol=1e-8)
+
+
+@pytest.mark.skip
+def test_interpolate_between_cube_edges():
+    value_1_1_1 = 3
+    known_points, known_values = known_cube(value_1_1_1=value_1_1_1)
+
+    interpolation_grid_ranges = [
+        [0, 1, 0.1],
+        [0, 1, 0.1],
+        [0, 1, 0.1],
     ]
 
     interp_values = griddata(
@@ -70,6 +93,6 @@ def test_interpolate_between_cube_edges():
         interpolation_grid_ranges
     )
 
-    actual_edge_value = interp_values[1, 2, 2]
-    expected_edge_value = (3.0 + 7.0)/2
+    actual_edge_value = interp_values[5, 10, 10]
+    expected_edge_value = 1.5
     assert_almost_equal(actual_edge_value, expected_edge_value)
