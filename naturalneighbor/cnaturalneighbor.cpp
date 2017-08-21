@@ -28,7 +28,7 @@ static struct PyModuleDef module = {
    PyModuleDef_HEAD_INIT,
    "cnaturalneighbor",
    module_docstring,
-   -1,  // TODO: investigate whether we can support sub-interpreters
+   -1,
    module_methods
 };
 
