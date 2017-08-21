@@ -2,16 +2,11 @@
 Comparison of natural neighbor and linear barycentric interpolation.
 '''
 import numpy as np
-from scipy.interpolate import griddata
+import scipy.interpolate
 import matplotlib as mpl; mpl.use('TkAgg')
 import matplotlib.pyplot as plt
 
-from naturalneighbor import natural_neighbor
-
-
-def linear_barycentric_interpolation(known_points, known_vals, grid_ranges):
-    grid = np.mgrid[*(slice(r) for r in grid_ranges)]
-    return griddata(known_points, known_vals, grid, method='linear')
+import naturalneighbor
 
 
 def display_method_error(method, interpolated_values, truth):
@@ -38,24 +33,25 @@ if __name__ == '__main__':
 
     known_points = np.round(np.random.rand(num_known_points, 3) * np.min([xmax, ymax, zmax]))
 
-    def f(x, y, z):
-        return np.sin(y/10) + np.sin(x/10)
-
-    known_vals = np.array([f(*point) for point in known_points], dtype=np.float64)
-    true_vals = np.reshape([f(x,y,z) for x,y,z in zip(*grid)], final_shape)
-
     grid_ranges = [
         [0, xmax, 1],
         [0, ymax, 1],
         [0, zmax, 1],
     ]
 
-    print("Beginning Natural Neighbor Interpolation")
-    nn_interp = natural_neighbor(known_points, known_vals, grid_ranges)
-    linear_interp = linear_barycentric_interpolation(known_points, known_vals, grid, final_shape)
-    linear_interp = np.reshape(linear_interp, final_shape)
-    display_method_error('Linear Barycentric', linear_interp, true_vals)
+    grid = np.mgrid[0:xmax:1, 0:ymax:1, 0:zmax:1]
+
+    def f(x, y, z):
+        return np.sin(y/10) + np.sin(x/10)
+
+    known_vals = np.array([f(*point) for point in known_points], dtype=np.float64)
+    true_vals = np.reshape([f(x,y,z) for x,y,z in zip(*grid)], final_shape)
+
+    nn_interp = naturalneighbor.griddata(known_points, known_vals, grid_ranges)
     display_method_error('Natural Neighbor', nn_interp, true_vals)
+
+    linear_interp = scipy.interpolate.griddata(known_points, known_vals, grid, method='linear')
+    display_method_error('Linear Barycentric', linear_interp, true_vals)
 
     plt.figure(1)
     plt.imshow(true_vals[:,:,20])
