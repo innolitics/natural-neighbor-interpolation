@@ -16,13 +16,12 @@ def display_method_error(method, interp_values, truth):
     mean_err = np.mean(np.abs(numerical_error))
     std_err = np.std(np.abs(numerical_error))
     max_err = np.max(np.abs(numerical_error))
-    print(f'''
-    {method} Error Statistics:
-        Mean absolute error ({method}): {mean_err}
-        Standard deviation of error ({method}): {std_err}
-        Max absolute error ({method}): {max_err}
-        Standard Deviation of absolute error ({method}): {max_err}
-    ''')
+    print('''
+    {} Error Statistics:
+        Mean absolute error: {}
+        Max absolute error: {}
+        Standard deviation of absolute error: {}
+    '''.format(method, mean_err, std_err, max_err))
 
 
 if __name__ == '__main__':
