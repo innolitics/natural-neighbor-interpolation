@@ -4,11 +4,10 @@ Comparison of natural neighbor and linear barycentric interpolation.
 import numpy as np
 import scipy.interpolate
 import matplotlib as mpl
+mpl.use('TkAgg')  # Required for matplotlib on MacOS systems
 import matplotlib.pyplot as plt
 
 import naturalneighbor
-
-mpl.use('TkAgg')  # Required for matplotlib on MacOS systems
 
 
 def display_method_error(method, interp_values, truth):
