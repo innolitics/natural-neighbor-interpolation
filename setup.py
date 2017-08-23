@@ -16,8 +16,8 @@ module = Extension(
 
 setup(
     name='naturalneighbor',
-    version='0.1.1',
-    description='Fast, discrete natural neighbor interpolation in 3D.',
+    version='0.1.3',
+    description='Fast, discrete natural neighbor interpolation in 3D on a CPU.',
     long_description=open('README.rst', 'r').read(),
     author='Reece Stevens',
     author_email='rstevens@innolitics.com',
@@ -28,8 +28,6 @@ setup(
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
