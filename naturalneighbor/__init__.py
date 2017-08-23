@@ -1,6 +1,5 @@
-from .naturalneighbor import griddata, _xyz_to_ijk
+from .naturalneighbor import griddata
 
 __all__ = [
     'griddata',
-    '_xyz_to_ijk',  # for testing
 ]
