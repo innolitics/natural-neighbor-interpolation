@@ -14,9 +14,8 @@ See https://doi.org/10.1109/TVCG.2006.27 for details.
 Future Work
 -----------
 
-- Add option to avoid extrapolation
-- Support floats and doubles
-- Support 2D
-- Support higher dimensions (?)
+- Provide options for extrapolation handling
+- Support floats (only support doubles at the moment)
+- Support 2D (only support 3D)
 - Add documentation with discussion on limitations of discrete sibson's method
 - Uncomment cpplint from tox.ini and cleanup C++ code
