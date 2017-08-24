@@ -13,8 +13,9 @@ import naturalneighbor
 def error_str(errors):
     numerical_error = errors[~np.isnan(errors)]
     mean_err = np.mean(numerical_error)
+    std_err = np.std(numerical_error)
     max_err = np.max(numerical_error)
-    return "(Mean Err={:.2f}, Max Err={:.2f})".format(mean_err, max_err)
+    return "(Mean={:.2f}, Std={:.2f} Max={:.2f})".format(mean_err, std_err, max_err)
 
 
 def compare_interp_for_func(func, func_as_string, image_name):
@@ -50,26 +51,36 @@ def compare_interp_for_func(func, func_as_string, image_name):
     nn_interp_err = np.abs(nn_interp_slice - true_values_slice)
     linear_interp_err = np.abs(linear_interp_slice - true_values_slice)
 
-    fig = plt.figure(figsize=(16, 6))
+    fig = plt.figure(figsize=(16, 10))
 
-    ax1 = fig.add_subplot(1, 3, 1)
+    ax1 = fig.add_subplot(2, 3, 1)
     ax1.imshow(true_values_slice)
     ax1.set_title("True Values\n{}".format(func_as_string))
 
-    ax2 = fig.add_subplot(1, 3, 2)
+    ax2 = fig.add_subplot(2, 3, 2)
     ax2.imshow(nn_interp_err)
     nn_error_str = error_str(nn_interp_err)
-    ax2.set_title("Natural Neighbor Error\n{}".format(nn_error_str))
+    ax2.set_title("Natural Neighbor Abs Error\n{}".format(nn_error_str))
 
-    ax3 = fig.add_subplot(1, 3, 3)
+    ax3 = fig.add_subplot(2, 3, 3)
     ax3.imshow(linear_interp_err)
     linear_error_str = error_str(linear_interp_err)
-    ax3.set_title("Linear Barycentric Error\n{}".format(linear_error_str))
+    ax3.set_title("Linear Barycentric Abs Error\n{}".format(linear_error_str))
+
+    ax5 = fig.add_subplot(2, 3, 5)
+    ax5.imshow(nn_interp_slice)
+    ax5.set_title("Natural Neighbor Values")
+
+    ax6 = fig.add_subplot(2, 3, 6)
+    ax6.imshow(linear_interp_slice)
+    ax6.set_title("Linear Barycentric Values")
 
     plt.savefig(image_name, dpi=100)
 
 
 if __name__ == '__main__':
+    np.random.seed(100)
+
     compare_interp_for_func(
         (lambda x, y, z: np.sin(y / 10) + np.sin(x / 10)),
         'sin(y/10) + sin(x/10)',
