@@ -86,7 +86,7 @@ if __name__ == '__main__':
     )
 
     compare_interp_for_func(
-        (lambda x, y, z: x + np.sin(x / 10)/10),
+        (lambda x, y, z: x + np.sin(x / 10) / 10),
         'x + sin(x/10)/10',
         'linear_comparison.png',
     )
