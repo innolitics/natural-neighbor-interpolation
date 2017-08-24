@@ -11,6 +11,12 @@ There are several implementations of 2D natural neighbor interpolation in Python
 
 See https://doi.org/10.1109/TVCG.2006.27 for details.
 
+Dependencies
+------------
+
+- Python 3.4+
+- Numpy (has been tested with 1.13+)
+
 Demonstration
 -------------
 
