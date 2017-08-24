@@ -3,9 +3,9 @@ Comparison of natural neighbor and linear barycentric interpolation.
 '''
 import numpy as np
 import scipy.interpolate
-import matplotlib.pyplot as plt
 import matplotlib as mpl
 mpl.use('Agg')  # so it can run on Travis without a display
+import matplotlib.pyplot as plt
 
 import naturalneighbor
 
