@@ -10,21 +10,14 @@ import matplotlib.pyplot as plt
 import naturalneighbor
 
 
-def display_method_error(method, interp_values, truth):
-    error = (truth - interp_values)
-    numerical_error = error[~np.isnan(error)]
-    mean_err = np.mean(np.abs(numerical_error))
-    std_err = np.std(np.abs(numerical_error))
-    max_err = np.max(np.abs(numerical_error))
-    print('''
-    {} Error Statistics:
-        Mean absolute error: {}
-        Max absolute error: {}
-        Standard deviation of absolute error: {}
-    '''.format(method, mean_err, std_err, max_err))
+def error_str(errors):
+    numerical_error = errors[~np.isnan(errors)]
+    mean_err = np.mean(numerical_error)
+    max_err = np.max(numerical_error)
+    return "(Mean Err={:.2f}, Max Err={:.2f})".format(mean_err, max_err)
 
 
-if __name__ == '__main__':
+def compare_interp_for_func(func, func_as_string, image_name):
     coord_max = 60
     xmax = coord_max
     ymax = coord_max
@@ -42,25 +35,49 @@ if __name__ == '__main__':
 
     grid = np.mgrid[0:xmax:1, 0:ymax:1, 0:zmax:1]
 
-    def f(x, y, z):
-        return np.sin(y / 10) + np.sin(x / 10)
-
-    known_values = np.array([f(*point) for point in known_points], dtype=np.float64)
-    true_values = np.reshape([f(x, y, z) for x, y, z in zip(*grid)], final_shape)
-
-    nn_interp = naturalneighbor.griddata(known_points, known_values, grid_ranges)
-    display_method_error('Natural Neighbor', nn_interp, true_values)
+    known_values = np.array([func(*point) for point in known_points], dtype=np.float64)
+    true_values = np.reshape([func(x, y, z) for x, y, z in zip(*grid)], final_shape)
 
     linear_interp = scipy.interpolate.griddata(known_points, known_values, tuple(grid), method='linear')
-    display_method_error('Linear Barycentric', linear_interp, true_values)
 
-    plt.figure(1)
-    plt.imshow(true_values[:, :, 20])
-    plt.title("True Values")
-    plt.figure(2)
-    plt.imshow(nn_interp[:, :, 20])
-    plt.title("Natural Neighbor")
-    plt.figure(3)
-    plt.title("Linear Barycentric")
-    plt.imshow(linear_interp[:, :, 20])
-    plt.show()
+    nn_interp = naturalneighbor.griddata(known_points, known_values, grid_ranges)
+    nn_interp[np.isnan(linear_interp)] = float('nan')
+
+    nn_interp_slice = nn_interp[:, :, 20]
+    linear_interp_slice = linear_interp[:, :, 20]
+    true_values_slice = true_values[:, :, 20]
+
+    nn_interp_err = np.abs(nn_interp_slice - true_values_slice)
+    linear_interp_err = np.abs(linear_interp_slice - true_values_slice)
+
+    fig = plt.figure(figsize=(16, 6))
+
+    ax1 = fig.add_subplot(1, 3, 1)
+    ax1.imshow(true_values_slice)
+    ax1.set_title("True Values\n{}".format(func_as_string))
+
+    ax2 = fig.add_subplot(1, 3, 2)
+    ax2.imshow(nn_interp_err)
+    nn_error_str = error_str(nn_interp_err)
+    ax2.set_title("Natural Neighbor Error\n{}".format(nn_error_str))
+
+    ax3 = fig.add_subplot(1, 3, 3)
+    ax3.imshow(linear_interp_err)
+    linear_error_str = error_str(linear_interp_err)
+    ax3.set_title("Linear Barycentric Error\n{}".format(linear_error_str))
+
+    plt.savefig(image_name, dpi=100)
+
+
+if __name__ == '__main__':
+    compare_interp_for_func(
+        (lambda x, y, z: np.sin(y / 10) + np.sin(x / 10)),
+        'sin(y/10) + sin(x/10)',
+        'sin_sin_comparison.png',
+    )
+
+    compare_interp_for_func(
+        (lambda x, y, z: y / 10 + x / 10),
+        'y/10 + x/10',
+        'linear_comparison.png',
+    )

@@ -11,11 +11,25 @@ There are several implementations of 2D natural neighbor interpolation in Python
 
 See https://doi.org/10.1109/TVCG.2006.27 for details.
 
+Demonstration
+-------------
+
+Natural neighbor interpolation can be more accurate than linear barycentric interpolation (Scipy's default) for smoothly varying functions.
+
+Also, the final result looks better.
+
+.. image:: https://raw.githubusercontent.com/innolitics/natural-neighbor-interpolation/master/demo/linear_comparison.png
+   :target: https://raw.githubusercontent.com/innolitics/natural-neighbor-interpolation/master/demo/linear_comparison.png
+
+
+.. image:: https://raw.githubusercontent.com/innolitics/natural-neighbor-interpolation/master/demo/sin_sin_comparison.png
+   :target: https://raw.githubusercontent.com/innolitics/natural-neighbor-interpolation/master/demo/sin_sin_comparison.png
+
 Future Work
 -----------
 
 - Provide options for extrapolation handling
-- Support floats (only support doubles at the moment)
+- Support floats and complex numbers (only support doubles at the moment)
 - Support 2D (only support 3D)
 - Add documentation with discussion on limitations of discrete sibson's method
 - Uncomment cpplint from tox.ini and cleanup C++ code
