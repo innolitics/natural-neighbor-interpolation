@@ -42,4 +42,5 @@ setup(
     ],
     url='https://github.com/innolitics/natural-neighbor-interpolation',
     ext_modules=[module],
+    packages=['naturalneighbor'],
 )
