@@ -3,7 +3,6 @@ Comparison of natural neighbor and linear barycentric interpolation.
 '''
 import numpy as np
 import scipy.interpolate
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 import naturalneighbor
