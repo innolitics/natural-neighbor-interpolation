@@ -43,14 +43,8 @@ PyMODINIT_FUNC PyInit_cnaturalneighbor(void) {
 }
 
 
-long clamp(long val, long min, long max) {
-    if (val < min) {
-        return min;
-    } else if (val > max) {
-        return max;
-    } else {
-        return val;
-    }
+inline long clamp(long val, long min, long max) {
+    return std::min(max, std::max(min, val));
 }
 
 
