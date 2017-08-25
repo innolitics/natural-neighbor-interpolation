@@ -29,9 +29,9 @@ def compare_interp_for_func(func, func_as_string, image_name):
     known_points = np.round(np.random.rand(num_known_points, 3) * np.min([xmax, ymax, zmax]))
 
     grid_ranges = [
-        [0, xmax - 1, 1],
-        [0, ymax - 1, 1],
-        [0, zmax - 1, 1],
+        [0, xmax, 1],
+        [0, ymax, 1],
+        [0, zmax, 1],
     ]
 
     grid = np.mgrid[0:xmax:1, 0:ymax:1, 0:zmax:1]
