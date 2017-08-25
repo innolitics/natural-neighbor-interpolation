@@ -1,18 +1,17 @@
 import scipy.interpolate
 import numpy as np
+import pytest
 
 import naturalneighbor
 
 
-def test_output_size_matches_scipy():
+@pytest.mark.parametrize("grid_ranges", [
+    [[0, 4, 0.6], [-3, 3, 1.0], [0, 1, 3]],
+    [[0, 2, 1], [0, 2, 1j], [0, 2, 2j]],
+])
+def test_output_size_matches_scipy(grid_ranges):
     points = np.random.rand(10, 3)
     values = np.random.rand(10)
-
-    grid_ranges = [
-        [0, 4, 0.6],  # step isn't a multiple
-        [-3, 3, 1.0],  # step is a multiple
-        [0, 1, 3],  # step is larger than stop - start
-    ]
 
     mesh_grids = tuple(np.mgrid[
         grid_ranges[0][0]:grid_ranges[0][1]:grid_ranges[0][2],
