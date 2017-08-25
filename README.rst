@@ -36,7 +36,8 @@ Usage
 
 The API for `naturalneighbor.griddata` is similar to
 `scipy.interpolate.griddata`.  Unlike Scipy, the third argument is not a dense
-meshgrid, but instead is just the ranges.::
+meshgrid, but instead is just the ranges.
+.. code-block:: python
 
     import scipy.interpolate
     import numpy as np
