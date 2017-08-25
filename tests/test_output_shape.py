@@ -9,8 +9,8 @@ def test_output_shape():
     known_points = np.random.rand(num_points, num_dimensions)
     known_values = np.random.rand(num_points)
     interp_ranges = [
-        [0, 1, 1],
-        [0, 1, 0.5],
+        [0, 2, 1],
+        [0, 1.5, 0.5],
         [0, 1, 2],
     ]
 

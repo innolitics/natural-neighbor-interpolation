@@ -33,9 +33,9 @@ def test_interp_on_known_points():
     known_values = np.random.rand(8)
 
     interp_grid_ranges = [
-        [0, 1, 1],
-        [0, 1, 1],
-        [0, 1, 1],
+        [0, 2, 1],
+        [0, 2, 1],
+        [0, 2, 1],
     ]
 
     actual_interp_values = griddata(
@@ -57,9 +57,9 @@ def test_interp_constant_values():
     known_values = np.ones((8,)) * 7
 
     interp_grid_ranges = [
-        [0, 1, 0.5],
-        [0, 1, 0.5],
-        [0, 1, 0.5],
+        [0, 1.5, 0.5],
+        [0, 1.5, 0.5],
+        [0, 1.5, 0.5],
     ]
 
     actual_interp_values = griddata(

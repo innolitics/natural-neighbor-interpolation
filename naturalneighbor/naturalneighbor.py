@@ -36,7 +36,11 @@ def griddata(known_points, known_values, interp_ranges):
     if np.any(stops - starts <= 0):
         raise ValueError("Invalid interp_ranges: start < stop")
 
-    interp_values_shape = np.floor(1 + (stops - starts) / steps).astype(np.int)
+    # mimick the behavior of np.arange + mgrid
+    num_steps = 1 + (stops - starts) / steps
+    num_steps[np.remainder(num_steps, 1) == 0] -= 1
+
+    interp_values_shape = np.floor(num_steps).astype(np.int)
     interp_values = np.zeros(interp_values_shape, dtype=np.double)
 
     known_points_ijk = _xyz_to_ijk(known_points, starts, steps)
