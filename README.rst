@@ -31,17 +31,23 @@ Also, the final result looks better.
 .. image:: https://raw.githubusercontent.com/innolitics/natural-neighbor-interpolation/master/demo/sin_sin_comparison.png
    :target: https://raw.githubusercontent.com/innolitics/natural-neighbor-interpolation/master/demo/sin_sin_comparison.png
 
+Note that the natural neighbor values usually are extrapolated; they were cut off in the demo to fairly compare with Scipy's linear barycentric method, which does not extrapolate.
+
 Usage
 -----
 
+This module exposes a single function, :code:`griddata`.
+
 The API for :code:`naturalneighbor.griddata` is similar to
-:code:`scipy.interpolate.griddata`.  Unlike Scipy, the third argument is not a dense
-meshgrid, but instead is just the ranges.
+:code:`scipy.interpolate.griddata`.  Unlike Scipy, the third argument is not a
+dense meshgrid, but instead is just the ranges.
 
 .. code-block:: python
 
     import scipy.interpolate
     import numpy as np
+
+    import naturalneighbor
 
     num_points = 10
     num_dimensions = 3
