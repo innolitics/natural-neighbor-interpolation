@@ -31,10 +31,32 @@ Also, the final result looks better.
 .. image:: https://raw.githubusercontent.com/innolitics/natural-neighbor-interpolation/master/demo/sin_sin_comparison.png
    :target: https://raw.githubusercontent.com/innolitics/natural-neighbor-interpolation/master/demo/sin_sin_comparison.png
 
+Usage
+-----
+
+The API for `naturalneighbor.griddata` is similar to
+`scipy.interpolate.griddata`.  Unlike Scipy, the third argument is not a dense
+meshgrid, but instead is just the ranges.::
+
+    import scipy.interpolate
+    import numpy as np
+
+    num_points = 10
+    num_dimensions = 3
+    points = np.random.rand(num_points, num_dimensions)
+    values = np.random.rand(num_points)
+
+    grids = tuple(np.mgrid[0:100:1, 0:100:1, 0:100:1])
+    scipy_interpolated_values = scipy.interpolate.griddata(points, values, grids)
+
+    grid_ranges = [[0, 100, 1], [0, 100, 1], [0, 100, 1]]
+    nn_interpolated_values = naturalneighbor.griddata(points, values, grid_ranges)
+
 Future Work
 -----------
 
 - Provide options for extrapolation handling
+- Support passing in complex numbers for the third value like `mgrid`
 - Support floats and complex numbers (only support doubles at the moment)
 - Support 2D (only support 3D)
 - Add documentation with discussion on limitations of discrete sibson's method
