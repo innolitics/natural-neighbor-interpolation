@@ -34,8 +34,8 @@ Also, the final result looks better.
 Usage
 -----
 
-The API for `naturalneighbor.griddata` is similar to
-`scipy.interpolate.griddata`.  Unlike Scipy, the third argument is not a dense
+The API for :code:`naturalneighbor.griddata` is similar to
+:code:`scipy.interpolate.griddata`.  Unlike Scipy, the third argument is not a dense
 meshgrid, but instead is just the ranges.
 
 .. code-block:: python
