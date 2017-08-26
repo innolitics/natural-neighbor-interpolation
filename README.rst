@@ -68,3 +68,4 @@ Future Work
 - Support 2D (only support 3D)
 - Add documentation with discussion on limitations of discrete sibson's method
 - Uncomment cpplint from tox.ini and cleanup C++ code
+- Generalize the threading model (currently it uses 8 threads---one for each quadrant)
