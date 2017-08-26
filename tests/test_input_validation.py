@@ -79,6 +79,7 @@ def test_step_before_stop():
     with pytest.raises(ValueError):
         griddata(known_points, known_values, interp_ranges)
 
+
 def test_zero_length_complex_step():
     num_points = 5
     num_dimensions = 3
