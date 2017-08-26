@@ -40,7 +40,7 @@ This module exposes a single function, :code:`griddata`.
 
 The API for :code:`naturalneighbor.griddata` is similar to
 :code:`scipy.interpolate.griddata`.  Unlike Scipy, the third argument is not a
-dense meshgrid, but instead is just the ranges.
+dense mgrid, but instead is just the ranges that would have been passed to :code:`mgrid`.  This is because the discrete Sibson approach requires the interpolated points to lie on an evenly spaced grid.
 
 .. code-block:: python
 
@@ -54,17 +54,16 @@ dense meshgrid, but instead is just the ranges.
     points = np.random.rand(num_points, num_dimensions)
     values = np.random.rand(num_points)
 
-    grids = tuple(np.mgrid[0:100:1, 0:100:1, 0:100:1])
+    grids = tuple(np.mgrid[0:100:1, 0:50:100j, 0:100:2])
     scipy_interpolated_values = scipy.interpolate.griddata(points, values, grids)
 
-    grid_ranges = [[0, 100, 1], [0, 100, 1], [0, 100, 1]]
+    grid_ranges = [[0, 100, 1], [0, 50, 100j], [0, 100, 2]]
     nn_interpolated_values = naturalneighbor.griddata(points, values, grid_ranges)
 
 Future Work
 -----------
 
 - Provide options for extrapolation handling
-- Support passing in complex numbers for the third value like `mgrid`
 - Support floats and complex numbers (only support doubles at the moment)
 - Support 2D (only support 3D)
 - Add documentation with discussion on limitations of discrete sibson's method
