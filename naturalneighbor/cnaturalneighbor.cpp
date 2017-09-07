@@ -110,7 +110,7 @@ void inner_loop(
                             double deltak_2 = (k - k_roi)*(k - k_roi);
                             double distance_sq_roi_to_known = deltai_2 + deltaj_2 + deltak_2;
 
-                            if (distance_sq_roi_to_known <= distance_sq_query_to_known) {
+                            if (distance_sq_roi_to_known == 0 || distance_sq_roi_to_known < distance_sq_query_to_known) {
                                 std::size_t indice = indice_i_component + indice_j_component + k_roi;
                                 interp_values_ptr[indice] += nearest_known_point->value;
                                 contribution_counter[indice] += 1;
