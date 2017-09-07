@@ -1,3 +1,6 @@
+import itertools
+import math
+
 import numpy as np
 from numpy.testing import assert_allclose, assert_almost_equal
 import pytest
@@ -24,32 +27,26 @@ def known_cube(value_0_1_1=0, value_1_1_1=0, side_length=1):
     return known_points, known_values
 
 
-def test_interp_on_known_points():
-    '''
-    If we interpolate precisely on the same grid as our known points, we
-    should receive the exact same values back.
-    '''
+@pytest.mark.parametrize("grid_ranges", [
+    [[0, 1, 2j], [0, 1, 2j], [0, 1, 2j]],
+    [[0, 1, 4j], [0, 1, 7j], [0, 1, 10j]],
+])
+def test_interp_on_known_points(grid_ranges):
     known_points, _ = known_cube()
     known_values = np.random.rand(8)
-
-    interp_grid_ranges = [
-        [0, 2, 1],
-        [0, 2, 1],
-        [0, 2, 1],
-    ]
 
     actual_interp_values = griddata(
         known_points,
         known_values,
-        interp_grid_ranges,
+        grid_ranges,
     )
 
-    expected_interp_values = np.empty((2, 2, 2), dtype=np.float)
     for value, point in zip(known_values, known_points):
         i, j, k = point.astype(int)
-        expected_interp_values[i, j, k] = value
-
-    assert_allclose(actual_interp_values, expected_interp_values, rtol=0, atol=1e-8)
+        # we only want to compare the corners of the cube, so we use the fact
+        # we know i, j, and k will each be 0 or 1 (and a well-placed negative sign)
+        # to grab just the corners
+        assert math.isclose(actual_interp_values[-i, -j, -k], value, rel_tol=0, abs_tol=1e-8)
 
 
 def test_interp_constant_values():
