@@ -8,23 +8,17 @@ import pytest
 from naturalneighbor import griddata
 
 
-def known_cube(value_0_1_1=0, value_1_1_1=0, side_length=1):
-    known_points = np.array([
+def known_cube(side_length=1):
+    return np.array([
         [0, 0, 0],
         [1, 0, 0],
         [0, 1, 0],
         [0, 0, 1],
         [1, 1, 0],
         [1, 0, 1],
-        [0, 1, 1],  # index 6
-        [1, 1, 1],  # index 7
+        [0, 1, 1],
+        [1, 1, 1],
     ], dtype=np.float) * side_length
-
-    known_values = np.zeros((8,), dtype=np.float)
-    known_values[6] = value_0_1_1
-    known_values[7] = value_1_1_1
-
-    return known_points, known_values
 
 
 @pytest.mark.parametrize("grid_ranges", [
@@ -32,7 +26,7 @@ def known_cube(value_0_1_1=0, value_1_1_1=0, side_length=1):
     [[0, 1, 4j], [0, 1, 7j], [0, 1, 10j]],
 ])
 def test_interp_on_known_points(grid_ranges):
-    known_points, _ = known_cube()
+    known_points = known_cube()
     known_values = np.random.rand(8)
 
     actual_interp_values = griddata(
@@ -50,7 +44,7 @@ def test_interp_on_known_points(grid_ranges):
 
 
 def test_interp_constant_values():
-    known_points, _ = known_cube()
+    known_points = known_cube()
     known_values = np.ones((8,)) * 7
 
     interp_grid_ranges = [
@@ -69,23 +63,25 @@ def test_interp_constant_values():
     assert_allclose(actual_interp_values, expected_interp_values, rtol=0, atol=1e-8)
 
 
-@pytest.mark.skip(reason="the expected edge values is probably wrong")
 def test_interp_between_cube_edges():
-    value_1_1_1 = 3
-    known_points, known_values = known_cube(value_1_1_1=value_1_1_1)
+    known_points = known_cube()
+    known_values = np.array([0, 0, 0, 1, 0, 1, 1, 1])
 
+    num_points = 1001
     interp_grid_ranges = [
-        [0, 1, 0.1],
-        [0, 1, 0.1],
-        [0, 1, 0.1],
+        [0, 1, 2j],
+        [0, 1, 2j],
+        [0, 1, num_points*1j],
     ]
 
-    interp_values = griddata(
+    actual_interp_values = griddata(
         known_points,
         known_values,
         interp_grid_ranges
     )
 
-    actual_edge_value = interp_values[5, 10, 10]
-    expected_edge_value = 1.5
-    assert_almost_equal(actual_edge_value, expected_edge_value)
+    expected_interp_values = np.linspace(0, 1, num_points)
+
+    # note the tolerance is loose, because discrete natural neighbor does
+    # introduce errors into the interpolated values
+    assert_allclose(actual_interp_values[0, 0, :], expected_interp_values, rtol=0, atol=1e-2)
