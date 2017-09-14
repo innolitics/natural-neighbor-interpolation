@@ -16,7 +16,7 @@ module = Extension(
 
 setup(
     name='naturalneighbor',
-    version='0.1.6',
+    version='0.1.7',
     description='Fast, discrete natural neighbor interpolation in 3D on a CPU.',
     long_description=open('README.rst', 'r').read(),
     author='Reece Stevens',
