@@ -1,8 +1,7 @@
-import itertools
 import math
 
 import numpy as np
-from numpy.testing import assert_allclose, assert_almost_equal
+from numpy.testing import assert_allclose
 import pytest
 
 from naturalneighbor import griddata
@@ -85,3 +84,27 @@ def test_interp_between_cube_edges():
     # note the tolerance is loose, because discrete natural neighbor does
     # introduce errors into the interpolated values
     assert_allclose(actual_interp_values[0, 0, :], expected_interp_values, rtol=0, atol=1e-2)
+
+
+def test_cube_edges_symmetrical():
+    known_points = known_cube()
+    known_values = np.array([0, 0, 0, 1, 0, 1, 1, 1])
+
+    # using an even number ensures there is no middle point equidistant to each side
+    num_points = 10
+
+    interp_grid_ranges = [
+        [0, 1, num_points*1j],
+        [0, 1, num_points*1j],
+        [0, 1, num_points*1j],
+    ]
+
+    actual_interp_values = griddata(
+        known_points,
+        known_values,
+        interp_grid_ranges
+    )
+
+    assert_allclose(actual_interp_values[0, 0, :], actual_interp_values[0, -1, :], rtol=0, atol=1e-9)
+    assert_allclose(actual_interp_values[0, 0, :], actual_interp_values[-1, 0, :], rtol=0, atol=1e-9)
+    assert_allclose(actual_interp_values[0, 0, :], actual_interp_values[-1, -1, :], rtol=0, atol=1e-9)
