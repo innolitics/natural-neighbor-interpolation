@@ -53,10 +53,9 @@ def griddata(known_points, known_values, interp_ranges):
         output_shape[i] = len(temp_grid)
 
         if output_shape[i] > 1:
-            step_sizes[i] = (temp_grid[-1] - temp_grid[0])/(output_shape[i] - 1)
+            step_sizes[i] = (temp_grid[-1] - temp_grid[0]) / (output_shape[i] - 1)
         else:
             step_sizes[i] = 1
-
 
     interp_values_shape = np.floor(output_shape).astype(np.int)
     interp_values = np.zeros(interp_values_shape, dtype=np.double)

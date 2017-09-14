@@ -70,7 +70,7 @@ def test_interp_between_cube_edges():
     interp_grid_ranges = [
         [0, 1, 2j],
         [0, 1, 2j],
-        [0, 1, num_points*1j],
+        [0, 1, num_points * 1j],
     ]
 
     actual_interp_values = griddata(
@@ -94,9 +94,9 @@ def test_cube_edges_symmetrical():
     num_points = 10
 
     interp_grid_ranges = [
-        [0, 1, num_points*1j],
-        [0, 1, num_points*1j],
-        [0, 1, num_points*1j],
+        [0, 1, num_points * 1j],
+        [0, 1, num_points * 1j],
+        [0, 1, num_points * 1j],
     ]
 
     actual_interp_values = griddata(
