@@ -10,10 +10,10 @@
 
 namespace kdtree {
 
-typedef struct {
+struct QueryResult {
     double value;
     double distance;
-} QueryResult;
+};
 
 
 template <typename Data, typename Point = geometry::Point<double, 3>>
@@ -35,9 +35,9 @@ public:
         m_root.reset();
         m_nodes.clear();
     }
-    const QueryResult *nearest_iterative(const Point &query) const {
+    const QueryResult nearest_iterative(const Point &query) const {
         if (!m_root) {
-            return NULL;
+            throw std::exception {};
         }
         MinPriorityQueue pq;
         best_match best(m_root, std::numeric_limits<double>::max());
@@ -45,9 +45,9 @@ public:
         while (!pq.empty()) {
             const auto current = pq.top();
             if (current.first >= best.distance) {
-                QueryResult *result = new QueryResult();
-                result->value = *(best.node->data);
-                result->distance = best.distance;
+                QueryResult result;
+                result.value = *(best.node->data);
+                result.distance = best.distance;
                 return result;
             }
             pq.pop();
@@ -64,9 +64,9 @@ public:
             if (far) pq.push(DistanceTuple(dx * dx, far));
             if (near) pq.push(DistanceTuple(0, near));
         }
-        QueryResult *result = new QueryResult();
-        result->value = *(best.node->data);
-        result->distance = best.distance;
+        QueryResult result;
+        result.value = *(best.node->data);
+        result.distance = best.distance;
         return result;
     }
 private:

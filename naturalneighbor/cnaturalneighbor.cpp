@@ -64,7 +64,7 @@ void inner_loop(
                 auto query_point = Point(i, j, k);
                 auto nearest_known_point = tree->nearest_iterative(query_point);
 
-                double distance_sq_query_to_known = nearest_known_point->distance;
+                double distance_sq_query_to_known = nearest_known_point.distance;
                 int roi_radius = ceil(sqrt(distance_sq_query_to_known));
 
                 // TODO: ask the programming gods for forgiveness, and then
@@ -112,7 +112,7 @@ void inner_loop(
 
                             if (distance_sq_roi_to_known == 0 || distance_sq_roi_to_known < distance_sq_query_to_known) {
                                 std::size_t indice = indice_i_component + indice_j_component + k_roi;
-                                interp_values_ptr[indice] += nearest_known_point->value;
+                                interp_values_ptr[indice] += nearest_known_point.value;
                                 contribution_counter[indice] += 1;
                             }
                         }
