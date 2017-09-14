@@ -1,5 +1,3 @@
-import math
-
 import numpy as np
 from numpy.testing import assert_allclose
 import pytest
@@ -39,7 +37,7 @@ def test_interp_on_known_points(grid_ranges):
         # we only want to compare the corners of the cube, so we use the fact
         # we know i, j, and k will each be 0 or 1 (and a well-placed negative sign)
         # to grab just the corners
-        assert math.isclose(actual_interp_values[-i, -j, -k], value, rel_tol=0, abs_tol=1e-8)
+        assert_allclose(actual_interp_values[-i, -j, -k], value, rel_tol=0, abs_tol=1e-8)
 
 
 def test_interp_constant_values():
