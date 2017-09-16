@@ -21,7 +21,7 @@ class kdtree {
 public:
     kdtree() {}
     virtual ~kdtree() {}
-    void add(const Point *point, const Data *data) {
+    void add(Point point, Data data) {
         typename kdnode::ptr node = std::make_shared<kdnode>(point, data);
         m_nodes.push_back(node);
     }
@@ -46,13 +46,13 @@ public:
             const auto current = pq.top();
             if (current.first >= best.distance) {
                 QueryResult result;
-                result.value = *(best.node->data);
+                result.value = best.node->data;
                 result.distance = best.distance;
                 return result;
             }
             pq.pop();
             auto currentNode = current.second;
-            auto splitPoint = *currentNode->split;
+            auto splitPoint = currentNode->split;
             double d = query.comparable_distance(splitPoint); // no sqrt
             double dx = query[currentNode->axis] - splitPoint[currentNode->axis];
             if (d < best.distance) {
@@ -65,7 +65,7 @@ public:
             if (near) pq.push(DistanceTuple(0, near));
         }
         QueryResult result;
-        result.value = *(best.node->data);
+        result.value = best.node->data;
         result.distance = best.distance;
         return result;
     }
@@ -75,9 +75,9 @@ private:
         ptr left;
         ptr right;
         int axis;
-        const Point *split;
-        const Data *data;
-        kdnode(const Point *g, const Data *d) : axis(0), split(g), data(d) {}
+        const Point split;
+        const Data data;
+        kdnode(const Point g, const Data d) : axis{0}, split{g}, data{d} {}
     };
     typedef typename kdnode::ptr node_ptr; // get rid of annoying typename
     typedef std::vector<node_ptr> Nodes;
@@ -107,8 +107,8 @@ private:
     struct Sort : std::binary_function<NODE_TYPE, NODE_TYPE, bool> {
         Sort(std::size_t dim) : m_dimension(dim) {}
         bool operator()(const NODE_TYPE &lhs, const NODE_TYPE &rhs) const {
-            Point lhsPoint = *lhs->split;
-            Point rhsPoint = *rhs->split;
+            Point lhsPoint = lhs->split;
+            Point rhsPoint = rhs->split;
             return lhsPoint[m_dimension] - rhsPoint[m_dimension] < 0;
         }
         std::size_t m_dimension;
@@ -137,7 +137,7 @@ private:
         if (!currentNode) {
             return;
         }
-        const Point splitPoint = *currentNode->split;
+        const Point splitPoint = currentNode->split;
         double d = query.comparable_distance(splitPoint); // no sqrt
         double dx = query[currentNode->axis] - splitPoint[currentNode->axis];
         if (d < best.distance) {

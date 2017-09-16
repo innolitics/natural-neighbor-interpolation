@@ -13,7 +13,6 @@
 
 typedef geometry::Point<double, 3> Point;
 
-
 static char module_docstring[] = "Discrete natural neighbor interpolation in 3D.";
 
 static char griddata_docstring[] = "Calculate the natural neighbor interpolation of a dataset.";
@@ -142,32 +141,25 @@ static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
     std::size_t nj = interp_values_shape[1];
     std::size_t nk = interp_values_shape[2];
 
-    double* known_values_ptr = (double*)PyArray_GETPTR1(known_values, 0);
     double* interp_values_ptr = (double*)PyArray_GETPTR1(interp_values, 0);
-
-    // TODO: make kd-tree manage memeory for points and values and remove these
-    // intermediate vectors; perhaps would be best to pass-by-value into the
-    // kdtree.add for our purposes
-    auto known_points_ijk_vec = new std::vector<Point>(num_known_points);
-
-    for (std::size_t i = 0; i < num_known_points; i++) {
-        (*known_points_ijk_vec)[i] = Point(
-                *(double*)PyArray_GETPTR2(known_points_ijk, i, 0),
-                *(double*)PyArray_GETPTR2(known_points_ijk, i, 1),
-                *(double*)PyArray_GETPTR2(known_points_ijk, i, 2));
-    }
 
     kdtree::kdtree<double> *tree = new kdtree::kdtree<double>();
     for (std::size_t i = 0; i < num_known_points; i++) {
-        tree->add(&(*known_points_ijk_vec)[i], known_values_ptr + i);
+        Point p {
+            *(double*)PyArray_GETPTR2(known_points_ijk, i, 0),
+            *(double*)PyArray_GETPTR2(known_points_ijk, i, 1),
+            *(double*)PyArray_GETPTR2(known_points_ijk, i, 2)
+        };
+        double v {*(double*)PyArray_GETPTR1(known_values, i)};
+        tree->add(p, v);
     }
     tree->build();
 
     auto contribution_counter = new unsigned long[ni*nj*nk]();
 
     std::vector<std::thread> threads;
-    int num_threads = 8;  // you can't change this at the moment!
-    for (std::size_t thread_number = 0; thread_number < 8; thread_number++) {
+    std::size_t num_threads = 8;  // you can't change this at the moment!
+    for (std::size_t thread_number = 0; thread_number < num_threads; thread_number++) {
         threads.push_back(std::thread(&inner_loop,
                 thread_number,
                 ni,
@@ -195,7 +187,6 @@ static PyObject* cnaturalneighbor_griddata(PyObject* self, PyObject* args) {
 
     delete[] contribution_counter;
     delete tree;
-    delete known_points_ijk_vec;
 
     Py_RETURN_NONE;
 }
