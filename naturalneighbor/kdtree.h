@@ -15,45 +15,40 @@ struct QueryResult {
     double distance;
 };
 
-
 template <typename Data, typename Point = geometry::Point<double, 3>>
 class kdtree {
 public:
     kdtree() {}
     virtual ~kdtree() {}
+
     void add(Point point, Data data) {
-        typename kdnode::ptr node = std::make_shared<kdnode>(point, data);
+        node_ptr node = std::make_shared<kdnode>(point, data);
         m_nodes.push_back(node);
     }
+
     void build() {
-        if (m_nodes.empty()) {
-            return;
+        if (!m_nodes.empty()) {
+            m_root = build(m_nodes, 0);
         }
-        m_root = build(m_nodes, 0);
     }
-    void clear() {
-        m_root.reset();
-        m_nodes.clear();
-    }
-    const QueryResult nearest_iterative(const Point &query) const {
-        if (!m_root) {
+
+    QueryResult nearest_iterative(const Point &query) const {
+        if (m_root == nullptr) {
             throw std::exception {};
         }
-        MinPriorityQueue pq {};
         DistanceTuple best {std::numeric_limits<double>::max(), m_root};
+
+        MinPriorityQueue pq {};
         pq.push(DistanceTuple(0, m_root));
         while (!pq.empty()) {
-            const auto current = pq.top();
-            if (current.distance >= best.distance) {
-                QueryResult result;
-                result.value = best.node->data;
-                result.distance = best.distance;
-                return result;
+            DistanceTuple current = pq.top();
+            if (current.distance > best.distance) {
+                break;
             }
             pq.pop();
             auto currentNode = current.node;
             auto splitPoint = currentNode->split;
-            double d = query.comparable_distance(splitPoint); // no sqrt
+            double d = query.comparable_distance(splitPoint);
             double dx = query[currentNode->axis] - splitPoint[currentNode->axis];
             if (d < best.distance) {
                 best.node = currentNode;
@@ -68,22 +63,20 @@ public:
                 pq.push(DistanceTuple(0, near));
             }
         }
-        QueryResult result;
-        result.value = best.node->data;
-        result.distance = best.distance;
-        return result;
+        return QueryResult {best.node->data, best.distance};
     }
+
 private:
     struct kdnode {
-        typedef std::shared_ptr<kdnode> ptr;
-        ptr left;
-        ptr right;
+        std::shared_ptr<kdnode> left;
+        std::shared_ptr<kdnode> right;
         int axis;
         const Point split;
         const Data data;
+
         kdnode(const Point g, const Data d) : axis{0}, split{g}, data{d} {}
     };
-    typedef typename kdnode::ptr node_ptr; // get rid of annoying typename
+    typedef std::shared_ptr<kdnode> node_ptr;
     typedef std::vector<node_ptr> Nodes;
 
     struct DistanceTuple {
@@ -97,15 +90,7 @@ private:
             return a.distance > b.distance;
         }
     };
-    struct LargestOnTop {
-        bool operator()(const DistanceTuple &a, const DistanceTuple &b) const {
-            return a.distance < b.distance;
-        }
-    };
     typedef std::priority_queue<DistanceTuple, std::vector<DistanceTuple>, SmallestOnTop> MinPriorityQueue;
-    typedef std::priority_queue<DistanceTuple, std::vector<DistanceTuple>, LargestOnTop> MaxPriorityQueue;
-    Nodes m_nodes;
-    node_ptr m_root;
 
     template<typename NODE_TYPE>
     struct Sort : std::binary_function<NODE_TYPE, NODE_TYPE, bool> {
@@ -118,46 +103,30 @@ private:
         std::size_t m_dimension;
     };
 
+    Nodes m_nodes;
+    node_ptr m_root;
+
     node_ptr build(Nodes &nodes, int depth) {
         if (nodes.empty()) {
-            return node_ptr();
+            return nullptr;
         }
         //int axis = depth % geometry::dimension<Point>();
         int axis = depth % 3;  // TODO: generalize over dimensions
         size_t median = nodes.size() / 2;
         std::nth_element(nodes.begin(), nodes.begin() + median, nodes.end(), Sort<node_ptr>(axis));
+
+        Nodes left {nodes.begin(), nodes.begin() + median};
+        Nodes right {nodes.begin() + median + 1, nodes.end()};
+
         node_ptr node = nodes.at(median);
         node->axis = axis;
-
-        Nodes left(nodes.begin(), nodes.begin() + median);
-        Nodes right(nodes.begin() + median + 1, nodes.end());
         node->left = build(left, depth + 1);
         node->right = build(right, depth + 1);
 
         return node;
     }
-
-    static void nearest(const Point &query, const node_ptr &currentNode, DistanceTuple &best) {
-        if (!currentNode) {
-            return;
-        }
-        const Point splitPoint = currentNode->split;
-        double d = query.comparable_distance(splitPoint); // no sqrt
-        double dx = query[currentNode->axis] - splitPoint[currentNode->axis];
-        if (d < best.distance) {
-            best.node = currentNode;
-            best.distance = d;
-        }
-        node_ptr near = dx <= 0 ? currentNode->left : currentNode->right;
-        node_ptr far = dx <= 0 ? currentNode->right : currentNode->left;
-        nearest(query, near, best);
-        if ((dx * dx) >= best.distance) {
-            return;
-        }
-        nearest(query, far, best);
-    }
 };
 
 } // namespace kdtree
 
-#endif /* KDTREE_H_ */
+#endif
