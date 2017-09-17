@@ -61,8 +61,12 @@ public:
             }
             node_ptr near = dx <= 0 ? currentNode->left : currentNode->right;
             node_ptr far = dx <= 0 ? currentNode->right : currentNode->left;
-            if (far) pq.push(DistanceTuple(dx * dx, far));
-            if (near) pq.push(DistanceTuple(0, near));
+            if (far) {
+                pq.push(DistanceTuple(dx * dx, far));
+            }
+            if (near) {
+                pq.push(DistanceTuple(0, near));
+            }
         }
         QueryResult result;
         result.value = best.node->data;
