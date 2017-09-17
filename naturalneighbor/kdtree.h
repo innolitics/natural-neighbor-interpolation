@@ -10,6 +10,7 @@
 
 namespace kdtree {
 
+// TODO: make this a public member type of kdtree
 struct QueryResult {
     double value;
     double distance;
