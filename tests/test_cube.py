@@ -86,7 +86,6 @@ def test_interp_between_cube_edges():
     assert_allclose(actual_interp_values[0, 0, :], expected_interp_values, rtol=0, atol=1e-2)
 
 
-@pytest.mark.xfail(reason="kdtree doesn't handle equidistant query points")
 @pytest.mark.parametrize("num_points", [10, 11])
 def test_cube_symmetrical(num_points):
     known_points = known_cube()
