@@ -121,4 +121,7 @@ TEST(KdtreeTest, TestCube) {
             0.5 + (d[2] == 0 ? -bump : bump)
         }).value , d[3]);
     }
+
+    double average_of_all_values = 4.5;
+    EXPECT_DOUBLE_EQ(query_tree(tree_data, {0.5, 0.5, 0.5}).value, average_of_all_values);
 }
