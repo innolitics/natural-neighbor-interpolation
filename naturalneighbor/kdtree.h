@@ -37,7 +37,7 @@ public:
         if (m_root == nullptr) {
             throw std::exception {};
         }
-        DistanceTuple best {std::numeric_limits<double>::max(), m_root};
+        QueryResult best {m_root->data, std::numeric_limits<double>::max()};
 
         MinPriorityQueue pq {};
         pq.push(DistanceTuple(0, m_root));
@@ -52,7 +52,7 @@ public:
             double d = query.comparable_distance(splitPoint);
             double dx = query[currentNode->axis] - splitPoint[currentNode->axis];
             if (d < best.distance) {
-                best.node = currentNode;
+                best.value = currentNode->data;
                 best.distance = d;
             }
             node_ptr near = dx <= 0 ? currentNode->left : currentNode->right;
@@ -64,7 +64,7 @@ public:
                 pq.push(DistanceTuple(0, near));
             }
         }
-        return QueryResult {best.node->data, best.distance};
+        return best;
     }
 
 private:
