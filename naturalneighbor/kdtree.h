@@ -39,19 +39,19 @@ public:
         if (!m_root) {
             throw std::exception {};
         }
-        MinPriorityQueue pq;
-        best_match best(m_root, std::numeric_limits<double>::max());
+        MinPriorityQueue pq {};
+        DistanceTuple best {std::numeric_limits<double>::max(), m_root};
         pq.push(DistanceTuple(0, m_root));
         while (!pq.empty()) {
             const auto current = pq.top();
-            if (current.first >= best.distance) {
+            if (current.distance >= best.distance) {
                 QueryResult result;
                 result.value = best.node->data;
                 result.distance = best.distance;
                 return result;
             }
             pq.pop();
-            auto currentNode = current.second;
+            auto currentNode = current.node;
             auto splitPoint = currentNode->split;
             double d = query.comparable_distance(splitPoint); // no sqrt
             double dx = query[currentNode->axis] - splitPoint[currentNode->axis];
@@ -81,27 +81,27 @@ private:
     };
     typedef typename kdnode::ptr node_ptr; // get rid of annoying typename
     typedef std::vector<node_ptr> Nodes;
-    typedef std::pair<double, node_ptr> DistanceTuple;
+
+    struct DistanceTuple {
+        double distance;
+        node_ptr node;
+        DistanceTuple(double d, const node_ptr &n) : distance{d}, node{n} {}
+    };
+
     struct SmallestOnTop {
         bool operator()(const DistanceTuple &a, const DistanceTuple &b) const {
-            return a.first > b.first;
+            return a.distance > b.distance;
         }
     };
     struct LargestOnTop {
         bool operator()(const DistanceTuple &a, const DistanceTuple &b) const {
-            return a.first < b.first;
+            return a.distance < b.distance;
         }
     };
     typedef std::priority_queue<DistanceTuple, std::vector<DistanceTuple>, SmallestOnTop> MinPriorityQueue;
     typedef std::priority_queue<DistanceTuple, std::vector<DistanceTuple>, LargestOnTop> MaxPriorityQueue;
     Nodes m_nodes;
     node_ptr m_root;
-
-    struct best_match {
-        node_ptr node;
-        double distance;
-        best_match(const node_ptr &n, double d) : node(n), distance(d) {}
-    };
 
     template<typename NODE_TYPE>
     struct Sort : std::binary_function<NODE_TYPE, NODE_TYPE, bool> {
@@ -133,7 +133,7 @@ private:
         return node;
     }
 
-    static void nearest(const Point &query, const node_ptr &currentNode, best_match &best) {
+    static void nearest(const Point &query, const node_ptr &currentNode, DistanceTuple &best) {
         if (!currentNode) {
             return;
         }
