@@ -42,6 +42,6 @@ private:
     CoordinateType values[DimensionCount];
 };
 
-} // namespace geometry
+}  // namespace geometry
 
-#endif /* GEOMETRY_H_ */
+#endif
