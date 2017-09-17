@@ -47,8 +47,9 @@ public:
                 break;
             }
             pq.pop();
-            auto currentNode = current.node;
-            auto splitPoint = currentNode->split;
+
+            node_ptr currentNode = current.node;
+            Point splitPoint = currentNode->split;
             double d = query.comparable_distance(splitPoint);
             double dx = query[currentNode->axis] - splitPoint[currentNode->axis];
             if (d < best.distance) {
