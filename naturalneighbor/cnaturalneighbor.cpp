@@ -54,15 +54,14 @@ For more, see http://python3porting.com/cextensions.html
         ob = Py_InitModule3(name, methods, doc);
 #endif
 
-MOD_INIT(cnaturalneighbor)
-{
+MOD_INIT(cnaturalneighbor) {
     PyObject* m;
 
-    MOD_DEF(m, "cnaturalneighbor", module_docstring, 
-            module_methods)
+    MOD_DEF(m, "cnaturalneighbor", module_docstring, module_methods);
 
-    if (m == NULL)
+    if (m == NULL) {
         return MOD_ERROR_VAL;
+    }
 
     import_array();
 
