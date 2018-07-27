@@ -24,24 +24,50 @@ static PyMethodDef module_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static struct PyModuleDef module = {
-   PyModuleDef_HEAD_INIT,
-   "cnaturalneighbor",
-   module_docstring,
-   -1,
-   module_methods
-};
+/* 
+The macros below are for backward compatibility with Python 2.
+Here, the functions used to creating and initializing modules
+differ in both their names and their signatures.
 
-PyMODINIT_FUNC PyInit_cnaturalneighbor(void) {
-    PyObject* m = PyModule_Create(&module);
-    if (m == NULL) {
-        return NULL;
-    }
+Module initialization 
+    2: init<name>, void function (does not return a value)
+    3: PyInit_<name>, returns either PyObject/NULL for success/failure
+Module creation
+    2: Py_InitModule3, takes three input arguments
+    3: PyModule_Create, takes input args in a single struct
 
-    import_array();  // Enable numpy functionality
-    return m;
+For more, see http://python3porting.com/cextensions.html
+*/
+#if PY_MAJOR_VERSION >= 3
+    #define MOD_ERROR_VAL NULL
+    #define MOD_SUCCESS_VAL(val) val
+    #define MOD_INIT(name) PyMODINIT_FUNC PyInit_##name(void)
+    #define MOD_DEF(ob, name, doc, methods) \
+        static struct PyModuleDef module = { \
+            PyModuleDef_HEAD_INIT, name, doc, -1, methods, }; \
+        ob = PyModule_Create(&module);
+#else
+    #define MOD_ERROR_VAL
+    #define MOD_SUCCESS_VAL(val)
+    #define MOD_INIT(name) PyMODINIT_FUNC init##name(void)
+    #define MOD_DEF(ob, name, doc, methods) \
+        ob = Py_InitModule3(name, methods, doc);
+#endif
+
+MOD_INIT(cnaturalneighbor)
+{
+    PyObject* m;
+
+    MOD_DEF(m, "cnaturalneighbor", module_docstring, 
+            module_methods)
+
+    if (m == NULL)
+        return MOD_ERROR_VAL;
+
+    import_array();
+
+    return MOD_SUCCESS_VAL(m);
 }
-
 
 inline long clamp(long val, long min, long max) {
     return std::min(max, std::max(min, val));
