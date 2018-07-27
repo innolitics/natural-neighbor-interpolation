@@ -14,7 +14,7 @@ See https://doi.org/10.1109/TVCG.2006.27 for details.
 Dependencies
 ------------
 
-- Python 3.4+
+- Python 3.4+ OR Python2.7
 - Numpy (has been tested with 1.13+)
 
 Demonstration
