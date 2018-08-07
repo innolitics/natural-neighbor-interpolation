@@ -40,6 +40,9 @@ setup(
     install_requires=[
         'numpy>=1.13',
     ],
+    setup_requires=[
+        'numpy>=1.13',
+    ],
     url='https://github.com/innolitics/natural-neighbor-interpolation',
     ext_modules=[module],
     packages=['naturalneighbor'],
