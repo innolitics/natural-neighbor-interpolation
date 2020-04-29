@@ -14,8 +14,9 @@ See https://doi.org/10.1109/TVCG.2006.27 for details.
 Installation
 ------------
 
-::
-   pip install naturalneighbor
+.. code-block:: bash
+
+    pip install naturalneighbor
 
 Dependencies
 ------------
