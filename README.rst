@@ -76,3 +76,8 @@ Future Work
 - Add documentation with discussion on limitations of discrete sibson's method
 - Uncomment cpplint from tox.ini and cleanup C++ code
 - Generalize the threading model (currently it uses 8 threads---one for each quadrant)
+
+Other Resources
+---------------
+
+- [Fast Discrete Approximation of Natural Neighbor Interpolation in 3D](https://adared.ch/fast-discrete-approximation-of-natural-neighbor-interpolation-in-3d/)
