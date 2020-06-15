@@ -80,4 +80,4 @@ Future Work
 Other Resources
 ---------------
 
-- [Fast Discrete Approximation of Natural Neighbor Interpolation in 3D](https://adared.ch/fast-discrete-approximation-of-natural-neighbor-interpolation-in-3d/)
+- `Fast Discrete Approximation of Natural Neighbor Interpolation in 3D <https://adared.ch/fast-discrete-approximation-of-natural-neighbor-interpolation-in-3d/>`_
