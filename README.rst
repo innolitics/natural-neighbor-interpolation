@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.org/innolitics/natural-neighbor-interpolation.svg?branch=master
-   :target: https://travis-ci.org/innolitics/natural-neighbor-interpolation
+.. image:: https://github.com/innolitics/natural-neighbor-interpolation/actions/workflows/test.yml/badge.svg
+   :target: https://github.com/innolitics/natural-neighbor-interpolation/actions/workflows/test.yml
 
 Discrete Sibson (Natural Neighbor) Interpolation
 ================================================
@@ -21,7 +21,7 @@ Installation
 Dependencies
 ------------
 
-- Python 2.7 or 3.5+
+- Python 3.5+
 - Numpy (has been tested with 1.13+)
 
 Demonstration
