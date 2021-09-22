@@ -21,7 +21,7 @@ Installation
 Dependencies
 ------------
 
-- Python 2.7 or 3.5+
+- Python 3.5+
 - Numpy (has been tested with 1.13+)
 
 Demonstration
