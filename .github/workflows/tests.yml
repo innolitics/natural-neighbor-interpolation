@@ -38,4 +38,4 @@ jobs:
           pip install -e .[github,dev]
       - name: Run tests
         run: |
-          pytest tests
+          tests
