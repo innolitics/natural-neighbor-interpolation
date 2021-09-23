@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.org/innolitics/natural-neighbor-interpolation.svg?branch=master
-   :target: https://travis-ci.org/innolitics/natural-neighbor-interpolation
+.. image:: https://github.com/innolitics/natural-neighbor-interpolation/actions/workflows/main.yml/badge.svg
+   :target: https://github.com/innolitics/natural-neighbor-interpolation/actions/workflows/main.yml
 
 Discrete Sibson (Natural Neighbor) Interpolation
 ================================================
