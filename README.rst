@@ -1,7 +1,6 @@
-.. image:: https://travis-ci.org/innolitics/natural-neighbor-interpolation.svg?branch=master
-   :target: https://travis-ci.org/innolitics/natural-neighbor-interpolation
+.. image:: https://github.com/willis0342/natural-neighbor-interpolation/actions/workflows/test.yml/badge.svg
+   :target: https://github.com/willis0342/natural-neighbor-interpolation/actions/workflows/test.yml
 
-Discrete Sibson (Natural Neighbor) Interpolation
 ================================================
 
 Natural neighbor interpolation is a method for interpolating scattered data
