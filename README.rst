@@ -1,5 +1,5 @@
 .. image:: https://github.com/innolitics/natural-neighbor-interpolation/actions/workflows/tests.yml/badge.svg
-   :target: https://github.com/innolitics/natural-neighbor-interpolation/actions/workflows/main.yml
+   :target: https://github.com/innolitics/natural-neighbor-interpolation/actions/workflows/tests.yml
 
 ================================================
 
