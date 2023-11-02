@@ -14,7 +14,7 @@ if __name__ == '__main__':
 
     metadata = dict(
         name='naturalneighbor',
-        version='0.2.1',
+        version='0.2.2',
         description='Fast, discrete natural neighbor interpolation in 3D on a CPU.',
         long_description=open('README.rst', 'r').read(),
         author='Reece Stevens',
